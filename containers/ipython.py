@@ -1,4 +1,4 @@
-# Copyright 2015 Google Inc. All rights reserved.
+# Copyright 2017 Google Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,14 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""IPython configuration for Google Cloud DataLab."""
+"""IPython configuration for Colab."""
 
 c = get_config()
 
 # Implicitly imported packages.
 c.InteractiveShellApp.extensions = [
-  'google.datalab.kernel',
-  'datalab.kernel',
   'matplotlib',
   'seaborn',
 ]
@@ -29,4 +27,3 @@ c.InteractiveShellApp.exec_lines = []
 
 # Enable matplotlib renderings to show up inline in the notebook.
 c.InteractiveShellApp.matplotlib = 'inline'
-

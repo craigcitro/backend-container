@@ -1,10 +1,12 @@
+#!/bin/bash -e
+
 # Copyright 2017 Google Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-# http://www.apache.org/licenses/LICENSE-2.0
+#  http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,11 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM datalab-core-gpu
-MAINTAINER Google Cloud DataLab
+# Create the notebook notary secret if one does not already exist
+if [ ! -f /content/datalab/.config/notary_secret ]
+then
+  mkdir -p /content/datalab/.config
+  openssl rand -base64 128 > /content/datalab/.config/notary_secret
+fi
 
-# Download and Install GPU specific packages
-RUN pip install -U --upgrade-strategy only-if-needed --no-cache-dir tensorflow-gpu==1.2.1 tflearn h5py && \
-    pip3 install -U --upgrade-strategy only-if-needed --no-cache-dir tensorflow-gpu==1.2.1 tflearn h5py
-
+# Start the DataLab server
+forever --minUptime 1000 --spinSleepTime 1000 /datalab/web/app.js
 
