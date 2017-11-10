@@ -21,9 +21,8 @@ on
 [StackOverflow](https://stackoverflow.com/questions/tagged/google-colaboratory).
 
 For any product issues, you can
-either [submit issues](https://github.com/googlecolab/backend-container/issues)
-here on this project page, or you can submit your feedback using the feedback
-link available within the product.
+either [submit an issue](https://github.com/googlecolab/colabtools/issues) or
+"Help" -> "Send Feedback" in Colab.
 
 ## Contributing
 
