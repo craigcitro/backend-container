@@ -156,6 +156,7 @@ RUN cd /datalab/web && /tools/node/bin/npm install && cd /
 # Install colabtools.
 COPY google-colab-0.0.1a1.tar.gz /
 RUN pip install /google-colab-0.0.1a1.tar.gz
+RUN jupyter nbextension install --py google.colab
 
 # Startup
 ENV ENV /root/.bashrc
