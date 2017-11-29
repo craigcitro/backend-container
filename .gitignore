@@ -23,6 +23,3 @@ node_modules/
 bower_components/
 test/ui/broken
 experimental
-polymer_bundled
-polymer_unbundled
-sources/web/datalab/polymer/**/*.js
