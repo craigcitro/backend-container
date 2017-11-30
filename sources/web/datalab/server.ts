@@ -20,7 +20,6 @@ import auth = require('./auth')
 import fs = require('fs');
 import health = require('./health');
 import http = require('http');
-import info = require('./info');
 import jupyter = require('./jupyter');
 import logging = require('./logging');
 import net = require('net');
@@ -39,7 +38,6 @@ import childProcess = require('child_process');
 
 var server: http.Server;
 var healthHandler: http.RequestHandler;
-var infoHandler: http.RequestHandler;
 var settingHandler: http.RequestHandler;
 var staticHandler: http.RequestHandler;
 
@@ -186,12 +184,6 @@ function handleRequest(request: http.ServerRequest,
     return;
   }
 
-  // /_info displays information about the server for diagnostics.
-  if (requestPath.indexOf('/_info') == 0) {
-    infoHandler(request, response);
-    return;
-  }
-
   // /_restart forcibly ends this process.
   // TODO: This is oh so hacky. If this becomes interesting longer term, turn
   //       this into a real feature, that involves a confirmation prompt, as
@@ -308,7 +300,6 @@ export function run(settings: common.AppSettings): void {
   sockets.init(settings);
 
   healthHandler = health.createHandler(settings);
-  infoHandler = info.createHandler(settings);
   settingHandler = settings_.createHandler();
   staticHandler = static_.createHandler(settings);
 
