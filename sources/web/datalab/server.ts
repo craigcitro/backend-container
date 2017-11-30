@@ -23,7 +23,6 @@ import http = require('http');
 import info = require('./info');
 import jupyter = require('./jupyter');
 import logging = require('./logging');
-import metadata = require('./metadata');
 import net = require('net');
 import noCacheContent = require('./noCacheContent')
 import path = require('path');
@@ -39,7 +38,6 @@ import backupUtility = require('./backupUtility');
 import childProcess = require('child_process');
 
 var server: http.Server;
-var metadataHandler: http.RequestHandler;
 var healthHandler: http.RequestHandler;
 var infoHandler: http.RequestHandler;
 var settingHandler: http.RequestHandler;
@@ -146,11 +144,6 @@ function handleRequest(request: http.ServerRequest,
     else {
       noCacheContent.handleRequest(requestPath, response);
     }
-    return;
-  }
-
-  if (requestPath == '/api/creds' || requestPath == '/api/metadata') {
-    metadataHandler(request, response);
     return;
   }
 
@@ -307,7 +300,6 @@ function requestHandler(request: http.ServerRequest, response: http.ServerRespon
  */
 export function run(settings: common.AppSettings): void {
   appSettings = settings;
-  metadata.init(settings);
   userManager.init(settings);
   jupyter.init(settings);
   auth.init(settings);
@@ -315,7 +307,6 @@ export function run(settings: common.AppSettings): void {
   reverseProxy.init(settings);
   sockets.init(settings);
 
-  metadataHandler = metadata.createHandler(settings);
   healthHandler = health.createHandler(settings);
   infoHandler = info.createHandler(settings);
   settingHandler = settings_.createHandler();
