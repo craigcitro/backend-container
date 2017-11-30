@@ -184,20 +184,6 @@ function handleRequest(request: http.ServerRequest,
     return;
   }
 
-  // /_restart forcibly ends this process.
-  // TODO: This is oh so hacky. If this becomes interesting longer term, turn
-  //       this into a real feature, that involves a confirmation prompt, as
-  //       well validation to require a POST request.
-  if (requestPath.indexOf('/_restart') == 0) {
-    if ('POST' != request.method) {
-      return;
-    }
-    setTimeout(function() { process.exit(0); }, 0);
-    response.statusCode = 200;
-    response.end();
-    return;
-  }
-
   // /_usersettings updates a per-user setting.
   if (requestPath.indexOf('/_usersettings') == 0) {
     settingHandler(request, response);
