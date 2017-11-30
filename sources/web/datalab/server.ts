@@ -23,7 +23,6 @@ import http = require('http');
 import info = require('./info');
 import jupyter = require('./jupyter');
 import logging = require('./logging');
-import idleTimeout = require('./idleTimeout');
 import metadata = require('./metadata');
 import net = require('net');
 import noCacheContent = require('./noCacheContent')
@@ -45,7 +44,6 @@ var healthHandler: http.RequestHandler;
 var infoHandler: http.RequestHandler;
 var settingHandler: http.RequestHandler;
 var staticHandler: http.RequestHandler;
-var timeoutHandler: http.RequestHandler;
 
 /**
  * The application settings instance.
@@ -215,20 +213,9 @@ function handleRequest(request: http.ServerRequest,
     return;
   }
 
-  if (requestPath.indexOf('/_stopvm') == 0) {
-    stopVmHandler(request, response);
-    return;
-  }
-
   // /_usersettings updates a per-user setting.
   if (requestPath.indexOf('/_usersettings') == 0) {
     settingHandler(request, response);
-    return;
-  }
-
-  // idle timeout management
-  if (requestPath.indexOf('/_timeout') === 0) {
-    timeoutHandler(request, response);
     return;
   }
 
@@ -281,22 +268,6 @@ function uncheckedRequestHandler(request: http.ServerRequest, response: http.Ser
 // The path that is used for the optional websocket proxy for HTTP requests.
 const httpOverWebSocketPath: string = '/http_over_websocket';
 
-function stopVmHandler(request: http.ServerRequest, response: http.ServerResponse) {
-  if ('POST' != request.method) {
-    return;
-  }
-  try {
-    let vminfo = info.getVmInfo();
-    childProcess.execSync(
-      'gcloud compute instances stop ' + vminfo.vm_name +
-         ' --project ' + vminfo.vm_project + ' --zone ' + vminfo.vm_zone,
-      {env: process.env});
-  } catch (err) {
-    logging.getLogger().error(err, 'Failed to stop the VM. stderr: %s', err.stderr);
-    return "unknown";
-  }
-}
-
 function socketHandler(request: http.ServerRequest, socket: net.Socket, head: Buffer) {
   request.url = trimBasePath(request.url);
   // Avoid proxying websocket requests on this path, as it's handled locally rather than by Jupyter.
@@ -323,7 +294,6 @@ function trimBasePath(requestPath: string): string {
  */
 function requestHandler(request: http.ServerRequest, response: http.ServerResponse) {
   request.url = trimBasePath(request.url);
-  idleTimeout.resetBasedOnPath(request.url);
   try {
     uncheckedRequestHandler(request, response);
   } catch (e) {
@@ -350,7 +320,6 @@ export function run(settings: common.AppSettings): void {
   infoHandler = info.createHandler(settings);
   settingHandler = settings_.createHandler();
   staticHandler = static_.createHandler(settings);
-  timeoutHandler = idleTimeout.createHandler();
 
   server = http.createServer(requestHandler);
   server.on('upgrade', socketHandler);
@@ -365,7 +334,6 @@ export function run(settings: common.AppSettings): void {
   backupUtility.startBackup(settings);
   process.on('SIGINT', () => process.exit());
 
-  idleTimeout.initAndStart();
   server.listen(settings.serverPort);
 }
 

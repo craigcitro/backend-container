@@ -24,7 +24,6 @@ import path = require('path');
 import querystring = require('querystring');
 import url = require('url');
 import util = require('util');
-import idleTimeout = require('./idleTimeout');
 import logging = require('./logging');
 import userManager = require('./userManager');
 
@@ -32,7 +31,6 @@ var SETTINGS_FILE = 'settings.json';
 var DEFAULT_USER_SETTINGS_FILE = 'userSettings.json';
 var METADATA_FILE = 'metadata.json';
 var BASE_PATH_FILE = 'basePath.json';
-const IDLE_TIMEOUT_KEY = 'idleTimeoutInterval';
 
 let lastUpdateUserSettingPromise = Promise.resolve(false);
 
@@ -332,10 +330,6 @@ function getSettingsHandler(userId: string, request: http.ServerRequest, respons
     return;
   } else {
     const visibleSettings = JSON.parse(JSON.stringify(userSettings));
-    if (visibleSettings[IDLE_TIMEOUT_KEY] === undefined) {
-      const appSettings = loadAppSettings();
-      visibleSettings[IDLE_TIMEOUT_KEY] = appSettings[IDLE_TIMEOUT_KEY];
-    }
     response.writeHead(200, { 'Content-Type': 'application/json' });
     response.end(JSON.stringify(visibleSettings));
     return;
@@ -376,16 +370,6 @@ function formHandler(userId: string, formData: any, request: http.ServerRequest,
   }
   var key = formData['key'];
   var value = formData['value'];
-  if (key == IDLE_TIMEOUT_KEY) {
-    if (value) {
-      const { seconds, errorMessage } = idleTimeout.parseAndValidateInterval(value);
-      if (errorMessage) {
-        response.writeHead(400, { 'Content-Type': 'text/plain' });
-        response.end(errorMessage);
-        return;
-      }
-    }
-  }
   // If dryRun was set, we don't actually update anything.
   if ('dryRun' in formData) {
     response.writeHead(200, { 'Content-Type': 'text/plain' });
@@ -404,10 +388,7 @@ function formHandler(userId: string, formData: any, request: http.ServerRequest,
     response.writeHead(500, { 'Content-Type': 'text/plain' });
     response.end();
   });
-
-  if (key == IDLE_TIMEOUT_KEY) {
-    idleTimeout.setIdleTimeoutInterval(value);
-  }
+    
   return;
 }
 
