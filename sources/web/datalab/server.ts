@@ -24,7 +24,6 @@ import info = require('./info');
 import jupyter = require('./jupyter');
 import logging = require('./logging');
 import idleTimeout = require('./idleTimeout');
-import fileSearch = require('./fileSearch');
 import metadata = require('./metadata');
 import net = require('net');
 import noCacheContent = require('./noCacheContent')
@@ -46,7 +45,6 @@ var healthHandler: http.RequestHandler;
 var infoHandler: http.RequestHandler;
 var settingHandler: http.RequestHandler;
 var staticHandler: http.RequestHandler;
-var fileSearchHandler: http.RequestHandler;
 var timeoutHandler: http.RequestHandler;
 
 /**
@@ -228,12 +226,6 @@ function handleRequest(request: http.ServerRequest,
     return;
   }
 
-  // file search capability
-  if (requestPath.indexOf('/_filesearch') === 0) {
-    fileSearchHandler(request, response);
-    return;
-  }
-
   // idle timeout management
   if (requestPath.indexOf('/_timeout') === 0) {
     timeoutHandler(request, response);
@@ -358,7 +350,6 @@ export function run(settings: common.AppSettings): void {
   infoHandler = info.createHandler(settings);
   settingHandler = settings_.createHandler();
   staticHandler = static_.createHandler(settings);
-  fileSearchHandler = fileSearch.createHandler(appSettings);
   timeoutHandler = idleTimeout.createHandler();
 
   server = http.createServer(requestHandler);
