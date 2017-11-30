@@ -67,31 +67,6 @@ RUN apt-get update && \
     apt-get source -d wget python-zmq ca-certificates pkg-config libpng-dev gcc && \
     cd / && \
 
-# Update pip and pip3 to avoid noisy warnings for users.
-    pip3 install --upgrade pip && \
-    pip install --upgrade pip
-
-# TODO(b/69087391): Clean up the ordering of the RUN commands below.
-
-# Setup Python packages. One package isn't available as a wheel, so we
-# install it manually to save on install time.
-#
-# Order is important here: we always do the python3 variants *before* the
-# python2 ones, so that installed scripts still default to python2.
-COPY requirements.txt /
-RUN pip install http://wheels.scipy.org/subprocess32-3.5.0-cp27-cp27mu-manylinux1_x86_64.whl && \
-    pip3 install -U --upgrade-strategy only-if-needed --no-cache-dir -r /requirements.txt && \
-    pip install -U --upgrade-strategy only-if-needed --no-cache-dir -r /requirements.txt && \
-
-# Set up Jupyter kernels for python2 and python3.
-    python3 -m ipykernel install && python -m ipykernel install && \
-
-# Setup Node.js using LTS 6.10
-    mkdir -p /tools/node && \
-    wget -nv https://nodejs.org/dist/v6.10.0/node-v6.10.0-linux-x64.tar.gz -O node.tar.gz && \
-    tar xzf node.tar.gz -C /tools/node --strip-components=1 && \
-    rm node.tar.gz && \
-
 # Setup Google Cloud SDK
 # Also apply workaround for gsutil failure brought by this version of Google Cloud.
 # (https://code.google.com/p/google-cloud-sdk/issues/detail?id=538) in final step.
@@ -106,6 +81,35 @@ RUN pip install http://wheels.scipy.org/subprocess32-3.5.0-cp27-cp27mu-manylinux
     # disable the gcloud update message
     tools/google-cloud-sdk/bin/gcloud config set component_manager/disable_update_check true && \
     touch /tools/google-cloud-sdk/lib/third_party/google.py && \
+
+# Fetch tensorflow wheels.
+    gsutil cp gs://colab-tensorflow/2017-11-30T09:20:30-0800/*whl / && \
+
+# Update pip and pip3 to avoid noisy warnings for users.
+    pip3 install --upgrade pip && \
+    pip install --upgrade pip
+
+# TODO(b/69087391): Clean up the ordering of the RUN commands below.
+
+# Setup Python packages. One package isn't available from PyPA, so we
+# install it manually to save on install time.
+#
+# Order is important here: we always do the python3 variants *before* the
+# python2 ones, so that installed scripts still default to python2.
+COPY requirements.txt /
+RUN pip3 install -U /tensorflow-*36*whl && \
+    pip install -U /tensorflow-*cp27*whl http://wheels.scipy.org/subprocess32-3.5.0-cp27-cp27mu-manylinux1_x86_64.whl && \
+    pip3 install -U --upgrade-strategy only-if-needed --no-cache-dir -r /requirements.txt && \
+    pip install -U --upgrade-strategy only-if-needed --no-cache-dir -r /requirements.txt && \
+
+# Set up Jupyter kernels for python2 and python3.
+    python3 -m ipykernel install && python -m ipykernel install && \
+
+# Setup Node.js using LTS 6.10
+    mkdir -p /tools/node && \
+    wget -nv https://nodejs.org/dist/v6.10.0/node-v6.10.0-linux-x64.tar.gz -O node.tar.gz && \
+    tar xzf node.tar.gz -C /tools/node --strip-components=1 && \
+    rm node.tar.gz && \
 
 # Set our locale to en_US.UTF-8.
     apt-get install -y locales && \
