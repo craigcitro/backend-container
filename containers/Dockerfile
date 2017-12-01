@@ -129,7 +129,6 @@ RUN pip3 install -U /tensorflow-*36*whl && \
         node-cache@3.2.0 && \
     cd / && \
     /tools/node/bin/npm install -g forever && \
-    /tools/node/bin/npm install -s chokidar@1.6.1 && \
 
 # Clean up
     apt-get autoremove -y && \
