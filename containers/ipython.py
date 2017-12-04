@@ -11,19 +11,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """IPython configuration for Colab."""
 
-c = get_config()
+c = get_config()  # pylint:disable=undefined-variable
 
 # Implicitly imported packages.
 c.InteractiveShellApp.extensions = [
-  'matplotlib',
-  'seaborn',
+    'matplotlib',
+    'seaborn',
 ]
 
 # Startup code.
-c.InteractiveShellApp.exec_lines = []
+c.InteractiveShellApp.exec_lines = [
+    'from google.colab import _shell_customizations',
+    '_shell_customizations.initialize()',
+]
 
 # Enable matplotlib renderings to show up inline in the notebook.
 c.InteractiveShellApp.matplotlib = 'inline'
