@@ -85,9 +85,10 @@ RUN apt-get update && \
 # Fetch tensorflow wheels.
     gsutil cp gs://colab-tensorflow/2017-11-30T09:20:30-0800/*whl / && \
 
-# Update pip and pip3 to avoid noisy warnings for users.
-    pip3 install --upgrade pip && \
-    pip install --upgrade pip
+# Update pip and pip3 to avoid noisy warnings for users, and install wheel for
+# use below.
+    pip3 install --upgrade pip wheel && \
+    pip install --upgrade pip wheel
 
 # TODO(b/69087391): Clean up the ordering of the RUN commands below.
 
@@ -158,8 +159,14 @@ RUN cd /datalab/web && /tools/node/bin/npm install && cd /
 
 # Install colabtools.
 COPY google-colab-0.0.1a1.tar.gz /
-RUN pip install /google-colab-0.0.1a1.tar.gz
-RUN jupyter nbextension install --py google.colab
+RUN pip3 install /google-colab-0.0.1a1.tar.gz && \
+    pip install /google-colab-0.0.1a1.tar.gz && \
+    jupyter nbextension install --py google.colab
+
+# Set up our pip/python aliases. We just copy the same file to two places
+# rather than play games with symlinks.
+ADD pymultiplexer /usr/local/bin/pip
+ADD pymultiplexer /usr/local/bin/python
 
 # Startup
 ENV ENV /root/.bashrc
