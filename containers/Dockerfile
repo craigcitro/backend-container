@@ -23,6 +23,7 @@ ENV PATH $PATH:/tools/node/bin:/tools/google-cloud-sdk/bin
 ENV PYTHONPATH /env/python
 
 # Setup OS and core packages
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install --no-install-recommends -y -q \
         apt-utils \
@@ -32,6 +33,12 @@ RUN apt-get update && \
         gfortran \
         git \
         libatlas-base-dev \
+        libcublas8.0 \
+        libcudart8.0 \
+        libcufft8.0 \
+        libcufftw8.0 \
+        libcurand8.0 \
+        libcusolver8.0 \
         libfreetype6-dev \
         liblapack-dev \
         libpng-dev \
