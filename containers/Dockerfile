@@ -81,11 +81,13 @@ RUN apt-get update && \
     unzip -qq google-cloud-sdk.zip -d tools && \
     rm google-cloud-sdk.zip && \
     tools/google-cloud-sdk/install.sh --usage-reporting=false \
-        --path-update=false --bash-completion=false && \
+        --path-update=false --bash-completion=false \
+        --disable-installation-options && \
     tools/google-cloud-sdk/bin/gcloud -q components update \
         gcloud core bq gsutil compute preview alpha beta && \
     # disable the gcloud update message
     tools/google-cloud-sdk/bin/gcloud config set component_manager/disable_update_check true && \
+    touch /tools/google-cloud-sdk/lib/third_party/google.py && \
 
 # Fetch tensorflow wheels.
     gsutil cp gs://colab-tensorflow/2017-11-30T09:20:30-0800/*whl / && \
@@ -176,4 +178,5 @@ ADD pymultiplexer /usr/local/bin/python
 # Startup
 ENV ENV /root/.bashrc
 ENV SHELL /bin/bash
+ENV CLOUDSDK_CONFIG /content/datalab/.config
 ENTRYPOINT [ "/datalab/run.sh" ]
