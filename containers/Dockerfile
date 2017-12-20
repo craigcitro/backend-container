@@ -22,6 +22,10 @@ EXPOSE 8080
 ENV PATH $PATH:/tools/node/bin:/tools/google-cloud-sdk/bin
 ENV PYTHONPATH /env/python
 
+# We need to set the gcloud path before disabling the components check below.
+# TODO(b/70862907): Drop this custom gcloud directory.
+ENV CLOUDSDK_CONFIG /content/datalab/.config
+
 # Setup OS and core packages
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
@@ -81,13 +85,11 @@ RUN apt-get update && \
     unzip -qq google-cloud-sdk.zip -d tools && \
     rm google-cloud-sdk.zip && \
     tools/google-cloud-sdk/install.sh --usage-reporting=false \
-        --path-update=false --bash-completion=false \
-        --disable-installation-options && \
+        --path-update=false --bash-completion=false && \
     tools/google-cloud-sdk/bin/gcloud -q components update \
         gcloud core bq gsutil compute preview alpha beta && \
     # disable the gcloud update message
     tools/google-cloud-sdk/bin/gcloud config set component_manager/disable_update_check true && \
-    touch /tools/google-cloud-sdk/lib/third_party/google.py && \
 
 # Fetch tensorflow wheels.
     gsutil cp gs://colab-tensorflow/2017-11-30T09:20:30-0800/*whl / && \
@@ -178,5 +180,4 @@ ADD pymultiplexer /usr/local/bin/python
 # Startup
 ENV ENV /root/.bashrc
 ENV SHELL /bin/bash
-ENV CLOUDSDK_CONFIG /content/datalab/.config
 ENTRYPOINT [ "/datalab/run.sh" ]
