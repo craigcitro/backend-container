@@ -14,6 +14,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Install the correct tensorflow variant depending on availability of GPU.
+#
+# pip install requires the wheel file name to match the name of the package
+# inside it, so we need to copy the gpu-blah.whl files to blah.whl.  The mess
+# below conditionally (if VM has a GPU) creates a temporary directory, symlinks
+# the wheels into the temporary directory, and cd's into that directory, so that
+# the subsequent unconditional "pip install"s from the current directory do the
+# right thing.  Finally, the temporary directory is removed, if it was created.
+cd /
+T=""
+if [ -d /usr/lib64-nvidia ]; then
+  T="$(mktemp -d)"
+  for f in tensorflow*whl; do
+    ln -s "/gpu-${f}" "${T}/${f}"
+  done
+  cd "$T"
+fi
+pip3 install -U tensorflow-*36*whl
+pip2 install -U tensorflow-*cp27*whl
+if [ -n "$T" ]; then
+  rm -rf "$T"
+fi
+cd /
+
 # Create the notebook notary secret if one does not already exist
 if [ ! -f /content/datalab/.config/notary_secret ]
 then
@@ -23,4 +47,3 @@ fi
 
 # Start the DataLab server
 forever --minUptime 1000 --spinSleepTime 1000 /datalab/web/app.js
-

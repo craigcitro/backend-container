@@ -36,6 +36,7 @@ RUN apt-get update && \
         curl \
         gfortran \
         git \
+        google-perftools \
         libatlas-base-dev \
         libcublas8.0 \
         libcudart8.0 \
@@ -92,7 +93,7 @@ RUN apt-get update && \
     tools/google-cloud-sdk/bin/gcloud config set component_manager/disable_update_check true && \
 
 # Fetch tensorflow wheels.
-    gsutil cp gs://colab-tensorflow/2017-11-30T09:20:30-0800/*whl / && \
+    gsutil cp gs://colab-tensorflow/2017-12-21T14:24:46-0800/*whl / && \
 
 # Update pip and pip3 to avoid noisy warnings for users, and install wheel for
 # use below.
@@ -107,8 +108,7 @@ RUN apt-get update && \
 # Order is important here: we always do the python3 variants *before* the
 # python2 ones, so that installed scripts still default to python2.
 COPY requirements.txt /
-RUN pip3 install -U /tensorflow-*36*whl && \
-    pip install -U /tensorflow-*cp27*whl http://wheels.scipy.org/subprocess32-3.5.0-cp27-cp27mu-manylinux1_x86_64.whl && \
+RUN pip install -U http://wheels.scipy.org/subprocess32-3.5.0-cp27-cp27mu-manylinux1_x86_64.whl && \
     pip3 install -U --upgrade-strategy only-if-needed --no-cache-dir -r /requirements.txt && \
     pip install -U --upgrade-strategy only-if-needed --no-cache-dir -r /requirements.txt && \
 
@@ -180,4 +180,7 @@ ADD pymultiplexer /usr/local/bin/python
 # Startup
 ENV ENV /root/.bashrc
 ENV SHELL /bin/bash
+# TensorFlow uses less than half the RAM with tcmalloc relative to (the default)
+# jemalloc, so we use it.
+ENV LD_PRELOAD /usr/lib/x86_64-linux-gnu/libtcmalloc.so.4
 ENTRYPOINT [ "/datalab/run.sh" ]
