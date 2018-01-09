@@ -94,6 +94,7 @@ RUN apt-get update && \
 
 # Fetch tensorflow wheels.
     gsutil cp gs://colab-tensorflow/2017-12-30T11:32:28-0800/*whl / && \
+    alias pip2=pip && for v in 2 3; do for f in /*tensorflow*-cp${v}*.whl; do pip${v} download -d /tf_deps $f; done; done && unalias pip2 && \
 
 # Update pip and pip3 to avoid noisy warnings for users, and install wheel for
 # use below.
