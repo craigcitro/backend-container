@@ -45,6 +45,7 @@ RUN apt-get update && \
         libcurand8.0 \
         libcusolver8.0 \
         libfreetype6-dev \
+        libhdf5-dev \
         liblapack-dev \
         libpng-dev \
         libxft-dev \
