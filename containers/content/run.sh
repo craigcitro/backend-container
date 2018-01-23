@@ -34,11 +34,11 @@ fi
 # Cloud TPUs don't work with the current release of TF (1.4) so use the
 # "nightly" (1.5rc) on TPU-using VMs.
 if [ -n "$COLAB_TPU_ADDR" ]; then
-  pip3 install -f /tf_deps -U tensorflow-1.5*-*36*whl
-  pip2 install -f /tf_deps -U tensorflow-1.5*-*cp27*whl
+  pip3 install -f /tf_deps -U --upgrade-strategy=only-if-needed tensorflow-1.5*-*36*whl
+  pip2 install -f /tf_deps -U --upgrade-strategy=only-if-needed tensorflow-1.5*-*cp27*whl
 else
-  pip3 install -f /tf_deps -U tensorflow-1.4*-*36*whl
-  pip2 install -f /tf_deps -U tensorflow-1.4*-*cp27*whl
+  pip3 install -f /tf_deps -U --upgrade-strategy=only-if-needed tensorflow-1.4*-*36*whl
+  pip2 install -f /tf_deps -U --upgrade-strategy=only-if-needed tensorflow-1.4*-*cp27*whl
 fi
 if [ -n "$T" ]; then
   rm -rf "$T"
