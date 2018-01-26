@@ -37,8 +37,5 @@ rm -rf $BUILD_DIR
 
 mv ../build/ build
 
-# Copy the license file into the container
-cp ../third_party/license.txt content/license.txt
-
 # Build the docker image
 docker build ${DOCKER_BUILD_ARGS} -t datalab .

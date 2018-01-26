@@ -69,17 +69,6 @@ RUN apt-get update && \
         && \
     mkdir -p /tools && \
 
-# TODO(b/69087391): Drop this section on fetching source packages.
-#
-# Save GPL source packages: first, we add two deb-src lines, then update, and
-# then fetch sources.
-    mkdir -p /srcs && \
-    cd /srcs && \
-    echo "\n\ndeb-src http://archive.ubuntu.com/ubuntu/ artful main restricted\ndeb-src http://archive.ubuntu.com/ubuntu/ artful-updates main restricted" >>/etc/apt/sources.list && \
-    apt-get update -y -qq && \
-    apt-get source -d wget python-zmq ca-certificates pkg-config libpng-dev gcc && \
-    cd / && \
-
 # Setup Google Cloud SDK
 # Also apply workaround for gsutil failure brought by this version of Google Cloud.
 # (https://code.google.com/p/google-cloud-sdk/issues/detail?id=538) in final step.
