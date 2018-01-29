@@ -62,6 +62,7 @@ RUN apt-get update && \
         python3-pip \
         python3-setuptools \
         python3-zmq \
+        rsync \
         ttf-liberation \
         unzip \
         wget \
@@ -117,6 +118,12 @@ RUN pip install -U http://wheels.scipy.org/subprocess32-3.5.0-cp27-cp27mu-manyli
     locale-gen en_US.UTF-8 && \
     update-locale LANG=en_US.UTF-8 && \
 
+# Build a copy of the datalab node app.
+    git clone https://github.com/googlecolab/backend-container /backend-container && \
+    /backend-container/sources/build.sh && \
+    mkdir /datalab && \
+    cp -a /backend-container/build/web/nb /datalab/web && \
+
 # Add some unchanging bits - specifically node modules (that need to be kept in sync
 # with packages.json manually, but help save build time, by preincluding them in an
 # earlier layer).
@@ -137,7 +144,6 @@ RUN pip install -U http://wheels.scipy.org/subprocess32-3.5.0-cp27-cp27mu-manyli
     rm -rf /root/.cache/* && \
     cd /
 
-
 ENV LANG en_US.UTF-8
 
 ADD ipython.py /etc/ipython/ipython_config.py
@@ -150,17 +156,16 @@ RUN ipython profile create default && \
     mkdir /etc/jupyter
 ADD jupyter_notebook_config.py /etc/jupyter
 
-# Add build artifacts
-ADD build/web/nb /datalab/web
+# Add and install build artifacts
 ADD content/ /datalab
-
-# Install the build artifacts
 RUN cd /datalab/web && /tools/node/bin/npm install && cd /
 
 # Install colabtools.
-COPY google-colab-0.0.1a1.tar.gz /
-RUN pip3 install /google-colab-0.0.1a1.tar.gz && \
-    pip install /google-colab-0.0.1a1.tar.gz && \
+COPY colabtools /colabtools
+RUN cd /colabtools && \
+    python setup.py sdist && \
+    pip3 install /colabtools/dist/google-colab-0.0.1a1.tar.gz && \
+    pip install /colabtools/dist/google-colab-0.0.1a1.tar.gz && \
     jupyter nbextension install --py google.colab
 
 # Set up our pip/python aliases. We just copy the same file to two places
