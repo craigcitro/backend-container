@@ -1,0 +1,7 @@
+substitutions:
+  _TAG: ''
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'gcr.io/colab-datalab/datalab:${_TAG}', '.']
+  dir: 'containers'
+images: ['gcr.io/colab-datalab/datalab:${_TAG}']
