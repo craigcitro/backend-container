@@ -84,7 +84,7 @@ RUN apt-get update && \
     tools/google-cloud-sdk/bin/gcloud config set component_manager/disable_update_check true && \
 
 # Fetch tensorflow wheels.
-    gsutil cp gs://colab-tensorflow/2018-02-11T14:49:42-08:00/*whl / && \
+    gsutil cp gs://colab-tensorflow/2018-02-12T09:35:03-08:00/*whl / && \
     alias pip2=pip && for v in 2 3; do for f in /*tensorflow*-cp${v}*.whl; do pip${v} download -d /tf_deps $f; done; done && unalias pip2 && \
 
 # Update pip and pip3 to avoid noisy warnings for users, and install wheel for

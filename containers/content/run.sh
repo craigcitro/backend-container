@@ -31,14 +31,10 @@ if [ -d /usr/lib64-nvidia ]; then
   done
   cd "$T"
 fi
-# Cloud TPUs require TF>=1.6rc0.
-if [ -n "$COLAB_TPU_ADDR" ]; then
-  pip3 install -f /tf_deps -U --upgrade-strategy=only-if-needed tensorflow-1.6*-*36*whl
-  pip2 install -f /tf_deps -U --upgrade-strategy=only-if-needed tensorflow-1.6*-*cp27*whl
-else
-  pip3 install -f /tf_deps -U --upgrade-strategy=only-if-needed tensorflow-1.4*-*36*whl
-  pip2 install -f /tf_deps -U --upgrade-strategy=only-if-needed tensorflow-1.4*-*cp27*whl
-fi
+
+pip3 install -f /tf_deps -U --upgrade-strategy=only-if-needed tensorflow-*-*36*whl
+pip2 install -f /tf_deps -U --upgrade-strategy=only-if-needed tensorflow-*-*cp27*whl
+
 if [ -n "$T" ]; then
   rm -rf "$T"
 fi
