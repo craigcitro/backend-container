@@ -95,6 +95,9 @@ RUN apt-get update && \
     pip3 install --upgrade pip wheel && \
     pip install --upgrade pip wheel
 
+# Add a global pip.conf to avoid warnings on `pip list` and friends.
+COPY pip.conf /etc/
+
 # TODO(b/69087391): Clean up the ordering of the RUN commands below.
 
 # Setup Python packages. One package isn't available from PyPA, so we
