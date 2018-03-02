@@ -26,6 +26,9 @@ ENV PYTHONPATH /env/python
 # TODO(b/70862907): Drop this custom gcloud directory.
 ENV CLOUDSDK_CONFIG /content/datalab/.config
 
+# Assume yes to all apt commands, to avoid user confusion around stdin.
+COPY 90assumeyes /etc/apt/apt.conf.d/
+
 # Setup OS and core packages
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
