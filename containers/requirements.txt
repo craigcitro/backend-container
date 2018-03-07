@@ -38,4 +38,4 @@ seaborn~=0.7.0
 six~=1.11.0
 statsmodels~=0.8.0
 sympy~=1.1.0
-tornado~=4.4.0
+tornado==4.5.*
