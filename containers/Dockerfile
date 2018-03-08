@@ -51,6 +51,8 @@ RUN apt-get update && \
         libhdf5-dev \
         liblapack-dev \
         libpng-dev \
+        libsm6 \
+        libxext6 \
         libxft-dev \
         libxml2-dev \
         openssh-client \
