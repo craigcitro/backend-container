@@ -61,11 +61,13 @@ RUN apt-get update && \
         python-dev \
         python-pip \
         python-setuptools \
+        python-tk \
         python-zmq \
         python3 \
         python3-dev \
         python3-pip \
         python3-setuptools \
+        python3-tk \
         python3-zmq \
         rsync \
         ttf-liberation \
