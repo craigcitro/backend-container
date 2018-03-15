@@ -183,10 +183,6 @@ RUN cd /colabtools && \
 ADD pymultiplexer /usr/local/bin/pip
 ADD pymultiplexer /usr/local/bin/python
 
-# We customize the chunksize used by googleapiclient for file transfers.
-# TODO(b/74067588): Drop this customization.
-RUN sed -i -e 's/DEFAULT_CHUNK_SIZE = 512\*1024/DEFAULT_CHUNK_SIZE = 100 * 1024 * 1024/' /usr/local/lib/*/dist-packages/googleapiclient/http.py
-
 # Startup
 ENV ENV /root/.bashrc
 ENV SHELL /bin/bash
