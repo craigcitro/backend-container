@@ -22,7 +22,6 @@ import http = require('http');
 import jupyter = require('./jupyter');
 import logging = require('./logging');
 import net = require('net');
-import noCacheContent = require('./noCacheContent')
 import path = require('path');
 import request = require('request');
 import reverseProxy = require('./reverseProxy');
@@ -129,11 +128,6 @@ function handleRequest(request: http.ServerRequest,
     }
     response.setHeader('Location', redirectUrl);
     response.end();
-    return;
-  }
-
-  if (requestPath.indexOf('/_nocachecontent/') == 0) {
-    noCacheContent.handleRequest(requestPath, response);
     return;
   }
 
@@ -273,7 +267,6 @@ export function run(settings: common.AppSettings): void {
   userManager.init(settings);
   jupyter.init(settings);
   auth.init(settings);
-  noCacheContent.init(settings);
   reverseProxy.init(settings);
   sockets.init(settings);
 
