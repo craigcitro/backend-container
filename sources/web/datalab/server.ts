@@ -18,7 +18,6 @@
 
 import auth = require('./auth')
 import fs = require('fs');
-import health = require('./health');
 import http = require('http');
 import jupyter = require('./jupyter');
 import logging = require('./logging');
@@ -36,7 +35,6 @@ import wsHttpProxy = require('./wsHttpProxy');
 import childProcess = require('child_process');
 
 var server: http.Server;
-var healthHandler: http.RequestHandler;
 var settingHandler: http.RequestHandler;
 var staticHandler: http.RequestHandler;
 
@@ -284,7 +282,6 @@ export function run(settings: common.AppSettings): void {
   reverseProxy.init(settings);
   sockets.init(settings);
 
-  healthHandler = health.createHandler(settings);
   settingHandler = settings_.createHandler();
   staticHandler = static_.createHandler(settings);
 
