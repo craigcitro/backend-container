@@ -59,13 +59,11 @@ RUN apt-get update && \
         pkg-config \
         python \
         python-dev \
-        python-pip \
         python-setuptools \
         python-tk \
         python-zmq \
         python3 \
         python3-dev \
-        python3-pip \
         python3-setuptools \
         python3-tk \
         python3-zmq \
@@ -76,6 +74,11 @@ RUN apt-get update && \
         zip \
         && \
     mkdir -p /tools && \
+
+# Set up pip, as per: https://pip.pypa.io/en/stable/installing/
+    curl -O https://bootstrap.pypa.io/get-pip.py && \
+    python3 get-pip.py && \
+    python2 get-pip.py && \
 
 # Setup Google Cloud SDK
 # Also apply workaround for gsutil failure brought by this version of Google Cloud.
@@ -92,12 +95,11 @@ RUN apt-get update && \
 
 # Fetch tensorflow wheels.
     gsutil cp gs://colab-tensorflow/2018-03-01T15:50:49-08:00/*whl / && \
-    alias pip2=pip && for v in 2 3; do for f in /*tensorflow*-cp${v}*.whl; do pip${v} download -d /tf_deps $f; done; done && unalias pip2 && \
+    for v in 2 3; do for f in /*tensorflow*-cp${v}*.whl; do pip${v} download -d /tf_deps $f; done; done && \
 
-# Update pip and pip3 to avoid noisy warnings for users, and install wheel for
-# use below.
-    pip3 install --upgrade pip wheel && \
-    pip install --upgrade pip wheel
+# Install wheel for use below.
+    pip3 install --upgrade wheel && \
+    pip2 install --upgrade wheel
 
 # Add a global pip.conf to avoid warnings on `pip list` and friends.
 COPY pip.conf /etc/
@@ -110,9 +112,9 @@ COPY pip.conf /etc/
 # Order is important here: we always do the python3 variants *before* the
 # python2 ones, so that installed scripts still default to python2.
 COPY requirements.txt /
-RUN pip install -U http://wheels.scipy.org/subprocess32-3.5.0-cp27-cp27mu-manylinux1_x86_64.whl && \
+RUN pip2 install -U http://wheels.scipy.org/subprocess32-3.5.0-cp27-cp27mu-manylinux1_x86_64.whl && \
     pip3 install -U --upgrade-strategy only-if-needed --no-cache-dir -r /requirements.txt && \
-    pip install -U --upgrade-strategy only-if-needed --no-cache-dir -r /requirements.txt && \
+    pip2 install -U --upgrade-strategy only-if-needed --no-cache-dir -r /requirements.txt && \
 
 # Set up Jupyter kernels for python2 and python3.
     python3 -m ipykernel install && python -m ipykernel install && \
@@ -175,11 +177,12 @@ COPY colabtools /colabtools
 RUN cd /colabtools && \
     python setup.py sdist && \
     pip3 install /colabtools/dist/google-colab-0.0.1a1.tar.gz && \
-    pip install /colabtools/dist/google-colab-0.0.1a1.tar.gz && \
+    pip2 install /colabtools/dist/google-colab-0.0.1a1.tar.gz && \
     jupyter nbextension install --py google.colab
 
 # Set up our pip/python aliases. We just copy the same file to two places
-# rather than play games with symlinks.
+# rather than play games with symlinks. Note that /usr/local/bin/pip will be
+# overridden by a `pip` upgrade.
 ADD pymultiplexer /usr/local/bin/pip
 ADD pymultiplexer /usr/local/bin/python
 
