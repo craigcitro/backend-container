@@ -55,18 +55,15 @@ RUN apt-get update && \
         libxext6 \
         libxft-dev \
         libxml2-dev \
+        libzmq5 \
         openssh-client \
         pkg-config \
         python \
         python-dev \
-        python-setuptools \
         python-tk \
-        python-zmq \
         python3 \
         python3-dev \
-        python3-setuptools \
         python3-tk \
-        python3-zmq \
         rsync \
         ttf-liberation \
         unzip \
