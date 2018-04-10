@@ -20,6 +20,7 @@ c.IPKernelApp.kernel_class = 'google.colab._kernel.Kernel'
 
 # Implicitly imported packages.
 c.InteractiveShellApp.extensions = [
+    'google.cloud.bigquery',
     'matplotlib',
     'seaborn',
 ]
