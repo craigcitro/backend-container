@@ -109,9 +109,10 @@ COPY pip.conf /etc/
 # Order is important here: we always do the python3 variants *before* the
 # python2 ones, so that installed scripts still default to python2.
 COPY requirements.txt /
+COPY requirements2.txt /
 RUN pip2 install -U http://wheels.scipy.org/subprocess32-3.5.0-cp27-cp27mu-manylinux1_x86_64.whl && \
     pip3 install -U --upgrade-strategy only-if-needed --no-cache-dir -r /requirements.txt && \
-    pip2 install -U --upgrade-strategy only-if-needed --no-cache-dir -r /requirements.txt && \
+    pip2 install -U --upgrade-strategy only-if-needed --no-cache-dir -r /requirements.txt -r /requirements2.txt && \
 
 # Set up Jupyter kernels for python2 and python3.
     python3 -m ipykernel install && python -m ipykernel install && \
