@@ -317,8 +317,7 @@ function requestHandler(request: http.ServerRequest, response: http.ServerRespon
     }
   }
   else if ((pathname.indexOf('/static/extensions/') == 0) ||
-           (pathname.indexOf('/static/require/') == 0) ||
-           (pathname.indexOf('/static/fonts/') == 0)) {
+           (pathname.indexOf('/static/require/') == 0)) {
     // Strip off the leading '/static/' to turn pathname into a relative path within the
     // static directory.
     sendDataLabFile(pathname.substr('/static/'.length), response);
