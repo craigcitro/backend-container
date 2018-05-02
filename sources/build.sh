@@ -50,7 +50,6 @@ function install_prereqs() {
 
   # Use -v instead of -h to test npm installation, since -h returns non-zero
   npm -v >/dev/null 2>&1 || install_node
-  source ./tools/initenv.sh
 }
 
 pushd $(pwd) >> /dev/null
@@ -61,7 +60,7 @@ SRC_PATHS=(
   "web"
 )
 
-BUILD_DIR=$REPO_DIR/build
+BUILD_DIR=../build
 LOG_FILE=$BUILD_DIR/build.log
 
 rm -rf $BUILD_DIR
@@ -71,7 +70,7 @@ for SRC in "${SRC_PATHS[@]}"
 do
   echo "Building $SRC ... " | tee -a $LOG_FILE
 
-  SRC_DIR=$REPO_DIR/sources/$SRC
+  SRC_DIR=../sources/$SRC
   cd $SRC_DIR
   ./build.sh
 
