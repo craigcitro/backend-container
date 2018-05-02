@@ -32,12 +32,7 @@ done
 
 cd $(dirname $0)
 
-if [ -z "$REPO_DIR" ]; then
-  source ../../tools/initenv.sh
-fi
-
-BUILD_DIR="$REPO_DIR/build"
-WEB_DIR=$BUILD_DIR/web/nb
+WEB_DIR=../../build/web/nb
 
 mkdir -p $WEB_DIR
 
