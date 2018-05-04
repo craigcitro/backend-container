@@ -26,8 +26,8 @@ ENV PYTHONPATH /env/python
 # TODO(b/70862907): Drop this custom gcloud directory.
 ENV CLOUDSDK_CONFIG /content/datalab/.config
 
-# Assume yes to all apt commands, to avoid user confusion around stdin.
-COPY 90assumeyes /etc/apt/apt.conf.d/
+# We add the full repo contents (for building) and clean it up later.
+COPY . /backend-container
 
 # Setup OS and core packages
 ENV DEBIAN_FRONTEND=noninteractive
@@ -96,10 +96,13 @@ RUN apt-get update && \
 
 # Install wheel for use below.
     pip3 install --upgrade wheel && \
-    pip2 install --upgrade wheel
+    pip2 install --upgrade wheel && \
+
+# Assume yes to all apt commands, to avoid user confusion around stdin.
+    cp /backend-container/containers/90assumeyes /etc/apt/apt.conf.d/ && \
 
 # Add a global pip.conf to avoid warnings on `pip list` and friends.
-COPY pip.conf /etc/
+    cp /backend-container/containers/pip.conf /etc/ && \
 
 # TODO(b/69087391): Clean up the ordering of the RUN commands below.
 
@@ -108,14 +111,25 @@ COPY pip.conf /etc/
 #
 # Order is important here: we always do the python3 variants *before* the
 # python2 ones, so that installed scripts still default to python2.
-COPY requirements.txt /
-COPY requirements2.txt /
-RUN pip2 install -U http://wheels.scipy.org/subprocess32-3.5.0-cp27-cp27mu-manylinux1_x86_64.whl && \
-    pip3 install -U --upgrade-strategy only-if-needed --no-cache-dir -r /requirements.txt && \
-    pip2 install -U --upgrade-strategy only-if-needed --no-cache-dir -r /requirements.txt -r /requirements2.txt && \
+    pip2 install -U http://wheels.scipy.org/subprocess32-3.5.0-cp27-cp27mu-manylinux1_x86_64.whl && \
+    pip3 install -U --upgrade-strategy only-if-needed --no-cache-dir \
+        -r /backend-container/containers/requirements.txt && \
+    pip2 install -U --upgrade-strategy only-if-needed --no-cache-dir \
+        -r /backend-container/containers/requirements.txt \
+        -r /backend-container/containers/requirements2.txt && \
+
+# Do IPython configuration and install build artifacts
+# Then link stuff needed for nbconvert to a location where Jinja will find it.
+# I'd prefer to just use absolute path in Jinja imports but those don't work.
+    ipython profile create default && \
+    jupyter notebook --generate-config && \
+    mkdir /etc/jupyter && \
+    cp /backend-container/containers/jupyter_notebook_config.py /etc/jupyter && \
 
 # Set up Jupyter kernels for python2 and python3.
     python3 -m ipykernel install && python -m ipykernel install && \
+    mkdir -p /etc/ipython && \
+    cp /backend-container/containers/ipython.py /etc/ipython/ipython_config.py && \
 
 # Setup Node.js using LTS 6.10
     mkdir -p /tools/node && \
@@ -129,60 +143,44 @@ RUN pip2 install -U http://wheels.scipy.org/subprocess32-3.5.0-cp27-cp27mu-manyl
     update-locale LANG=en_US.UTF-8 && \
 
 # Build a copy of the datalab node app.
-    git clone https://github.com/googlecolab/backend-container /backend-container && \
-    /backend-container/sources/build.sh && \
-    mkdir /datalab && \
-    cp -a /backend-container/build/web/nb /datalab/web && \
-
-# Add some unchanging bits - specifically node modules (that need to be kept in sync
-# with packages.json manually, but help save build time, by preincluding them in an
-# earlier layer).
-    /tools/node/bin/npm install \
-        ws@1.1.4 \
-        http-proxy@1.13.2 \
-        mkdirp@0.5.1 \
-        node-uuid@1.4.7 \
-        bunyan@1.7.1 \
-        tcp-port-used@0.1.2 \
-        node-cache@3.2.0 && \
+    mkdir -p /datalab/web && \
+    cd /backend-container/sources/web/datalab && \
+    /tools/node/bin/npm install && \
+    /tools/node/bin/npm run transpile -- --outDir /datalab/web && \
+    cp -a config package.json static templates /datalab/web && \
     cd / && \
     /tools/node/bin/npm install -g forever && \
 
-# Clean up
-    apt-get autoremove -y && \
-    rm -rf /tmp/* && \
-    rm -rf /root/.cache/* && \
-    cd /
-
-ENV LANG en_US.UTF-8
-
-ADD ipython.py /etc/ipython/ipython_config.py
-
-# Do IPython configuration and install build artifacts
-# Then link stuff needed for nbconvert to a location where Jinja will find it.
-# I'd prefer to just use absolute path in Jinja imports but those don't work.
-RUN ipython profile create default && \
-    jupyter notebook --generate-config && \
-    mkdir /etc/jupyter
-ADD jupyter_notebook_config.py /etc/jupyter
-
 # Add and install build artifacts
-ADD content/ /datalab
-RUN cd /datalab/web && /tools/node/bin/npm install && cd /
+    cp -a /backend-container/containers/content/* /datalab && \
+    cd /datalab/web && \
+    /tools/node/bin/npm install && \
+    cd / && \
 
 # Install colabtools.
-COPY colabtools /colabtools
-RUN cd /colabtools && \
+    cp -a /backend-container/colabtools /colabtools && \
+    cd /colabtools && \
     python setup.py sdist && \
     pip3 install /colabtools/dist/google-colab-0.0.1a1.tar.gz && \
     pip2 install /colabtools/dist/google-colab-0.0.1a1.tar.gz && \
-    jupyter nbextension install --py google.colab
+    jupyter nbextension install --py google.colab && \
 
 # Set up our pip/python aliases. We just copy the same file to two places
 # rather than play games with symlinks. Note that /usr/local/bin/pip will be
-# overridden by a `pip` upgrade.
-ADD pymultiplexer /usr/local/bin/pip
-ADD pymultiplexer /usr/local/bin/python
+# overridden by a `pip` upgrade, so we keep this near the end of the Dockerfile.
+    cp /backend-container/containers/pymultiplexer /usr/local/bin/pip && \
+    cp /backend-container/containers/pymultiplexer /usr/local/bin/python && \
+
+# Clean up
+    apt-get autoremove -y && \
+    rm -rf /backend-container/ && \
+    rm -f /get-pip.py && \
+    rm -rf /root/.cache/* && \
+    rm -rf /tmp/* && \
+    cd /
+
+# We set this to avoid various encoding issues.
+ENV LANG en_US.UTF-8
 
 # Startup
 ENV ENV /root/.bashrc
