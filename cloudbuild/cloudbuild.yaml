@@ -1,7 +1,8 @@
 substitutions:
   _TAG: ''
 steps:
-- name: 'gcr.io/cloud-builders/docker'
+- id: "unpack"
+  name: 'gcr.io/cloud-builders/docker'
   entrypoint: 'bash'
   args:
     - '-c'
@@ -10,7 +11,10 @@ steps:
       apt-get -qq install unzip
       unzip upstream.zip
       unzip colabtools.zip
-- name: 'gcr.io/cloud-builders/docker'
+- id: "build"
+  name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'gcr.io/colab-datalab/datalab:${_TAG}', '-f', 'containers/Dockerfile', '.']
 images: ['gcr.io/colab-datalab/datalab:${_TAG}']
 timeout: '2400s'
+options:
+  machineType: 'N1_HIGHCPU_32'
