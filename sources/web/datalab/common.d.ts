@@ -105,7 +105,7 @@ declare module common {
     contentDir: string;
 
     /**
-     * Whether to use the git and workspace functionality.
+     * Deprecated.
      */
     useWorkspace: boolean;
 
