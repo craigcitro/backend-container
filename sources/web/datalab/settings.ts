@@ -70,23 +70,11 @@ export function loadAppSettings(): common.AppSettings {
 }
 
 /**
- * Get user directory which stores the user's notebooks.
- * the directory is root_dir + emailaddress, such as '/content/user@domain.com'.
+ * Get the base directory for local content.
  */
-export function getUserDir(userId: string): string {
+export function getContentDir(): string {
   const appSettings = loadAppSettings();
   return path.join(appSettings.datalabRoot, appSettings.contentDir);
-}
-
-/**
- * Loads the path of the configuration directory for the user.
- *
- * @returns the path of the user's config directory.
- */
-export function getUserConfigDir(userId: string): string {
-  var userDir = getUserDir(userId);
-  var configPath = path.join(userDir, 'datalab', '.config');
-  return configPath;
 }
 
 // Exported for testing

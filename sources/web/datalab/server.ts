@@ -48,9 +48,8 @@ var appSettings: common.AppSettings;
  */
 function startInitializationForUser(request: http.ServerRequest): void {
   if (jupyter.getPort(request) == 0) {
-    var userId = 'anonymous';
     // Giving null callback so this is fire-and-forget.
-    jupyter.startForUser(userId, null);
+    jupyter.start(null);
   }
 }
 
@@ -60,13 +59,12 @@ function startInitializationForUser(request: http.ServerRequest): void {
  * the request to jupyter server.
  */
 function handleJupyterRequest(request: http.ServerRequest, response: http.ServerResponse): void {
-  var userId = 'anonymous';
 
   if (jupyter.getPort(request) == 0) {
     // Jupyter server is not created yet. Creating it for user and call self again.
-    // Another 'startForUser' may already be ongoing so this 'syncNow' will probably
+    // Another 'start' may already be ongoing so this 'syncNow' will probably
     // be parked until the ongoing one is done.
-    jupyter.startForUser(userId, function(e) {
+    jupyter.start(function(e) {
       if (e) {
         response.statusCode = 500;
         response.end();
