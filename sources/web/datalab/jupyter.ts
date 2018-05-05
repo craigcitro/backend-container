@@ -40,43 +40,6 @@ interface JupyterServer {
  * Jupyter servers key'd by user id (each server is associated with a single user)
  */
 var jupyterServers: common.Map<JupyterServer> = {};
-var nextJupyterPort = 9000;
-var portRetryAttempts = 500;
-
-/**
- * Get the next available port and pass it to the given `resolved` callback.
- */
-function getNextJupyterPort(attempts: number, resolved: (port: number)=>void, failed: (error: Error)=>void) {
-   if (attempts < 0) {
-     var e = new Error('Failed to find a free port after ' + portRetryAttempts + ' attempts.');
-     logging.getLogger().error(e, 'Failed to find a free port for the Jupyter server');
-     failed(e);
-     return;
-   }
-
-   if (nextJupyterPort > 65535) {
-     // We've exhausted the entire port space. This is an extraordinary circumstance
-     // so we log an error for it (but still continue).
-     var e = new Error('Port range exhausted.');
-     logging.getLogger().error(e, 'Exhausted the entire address space looking for free ports');
-     nextJupyterPort = 9000;
-   }
-
-   var port = nextJupyterPort;
-   nextJupyterPort++;
-
-   tcp.check(port, "localhost").then(
-     function(inUse: boolean) {
-       if (inUse) {
-         getNextJupyterPort(attempts - 1, resolved, failed);
-       }
-       else {
-         logging.getLogger().info('Returning port %d', port);
-         resolved(port);
-       }
-     },
-     failed);
-}
 
 /**
  * Used to make sure no multiple initialization runs happen for the same user
@@ -166,7 +129,7 @@ function createJupyterServerAtPort(port: number, userId: string, userDir: string
  * Starts the Jupyter server, and then creates a proxy object enabling
  * routing HTTP and WebSocket requests to Jupyter.
  */
-function createJupyterServer(userId: string, remainingAttempts: number) {
+function createJupyterServer(userId: string) {
   logging.getLogger().info('Checking user dir for %s exists', userId);
   var userDir = settings.getUserDir(userId);
   logging.getLogger().info('Checking dir %s exists', userDir);
@@ -182,63 +145,21 @@ function createJupyterServer(userId: string, remainingAttempts: number) {
     }
   }
 
-  nextJupyterPort = appSettings.nextJupyterPort;
-  logging.getLogger().info('Looking for a free port on which to start Jupyter for %s', userId);
-  getNextJupyterPort(
-    portRetryAttempts,
-    function(port: number) {
-      logging.getLogger().info('Launching Jupyter server for %s at %d', userId, port);
-      try {
-        createJupyterServerAtPort(port, userId, userDir);
-      } catch (e) {
-        logging.getLogger().error(e, 'Error creating the Jupyter process for user %s', userId);
-        callbackManager.invokeAllCallbacks(userId, e);
-      }
-    },
-    function(e) {
-      logging.getLogger().error(e, 'Failed to find a free port');
-      if (remainingAttempts > 0) {
-        attemptStartForUser(userId, remainingAttempts - 1);
-      }
-      else {
-        logging.getLogger().error('Failed to start Jupyter server for user %s.', userId);
-        callbackManager.invokeAllCallbacks(userId, new Error('failed to start jupyter server.'));
-      }
-    });
+  var port = appSettings.nextJupyterPort || 9000;
+
+  logging.getLogger().info('Launching Jupyter server for %s at %d', userId, port);
+  try {
+    createJupyterServerAtPort(port, userId, userDir);
+  } catch (e) {
+    logging.getLogger().error(e, 'Error creating the Jupyter process for user %s', userId);
+    callbackManager.invokeAllCallbacks(userId, e);
+  }
 }
 
 export function getPort(request: http.ServerRequest): number {
   var userId = 'anonymous';
   var server = jupyterServers[userId];
-
   return server ? server.port : 0;
-}
-
-export function getInfo(): Array<common.Map<any>> {
-  var info: Array<common.Map<any>> = [];
-  for (var n in jupyterServers) {
-    var jupyterServer = jupyterServers[n];
-
-    var serverInfo: common.Map<any> = {
-      userId: jupyterServer.userId,
-      port: jupyterServer.port,
-      notebooks: jupyterServer.notebooks,
-      pid: jupyterServer.childProcess.pid
-    };
-    info.push(serverInfo);
-  }
-
-  return info;
-}
-
-function attemptStartForUser(userId: string, remainingAttempts: number) {
-  try {
-    createJupyterServer(userId, remainingAttempts);
-  }
-  catch (e) {
-    logging.getLogger().error(e, 'Failed to start Jupyter server for user %s.', userId);
-    callbackManager.invokeAllCallbacks(userId, e);
-  }
 }
 
 /**
@@ -258,7 +179,13 @@ export function startForUser(userId: string, cb: common.Callback0) {
   }
 
   logging.getLogger().info('Starting jupyter server for %s.', userId);
-  attemptStartForUser(userId, 10);
+  try {
+    createJupyterServer(userId);
+  }
+  catch (e) {
+    logging.getLogger().error(e, 'Failed to start Jupyter server for user %s.', userId);
+    callbackManager.invokeAllCallbacks(userId, e);
+  }
 }
 
 /**
@@ -336,5 +263,3 @@ function errorHandler(error: Error, request: http.ServerRequest, response: http.
   response.writeHead(500, 'Internal Server Error');
   response.end();
 }
-
-function placeHolder(): boolean { return false; }
