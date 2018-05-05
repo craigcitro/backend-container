@@ -128,16 +128,6 @@ function handleRequest(request: http.ServerRequest,
 }
 
 /**
- * Returns true iff the supplied path should be handled by the static handler
- */
-function isStaticResource(urlpath: string) {
-  // /static and /custom paths for returning static content
-  return urlpath.indexOf('/custom') == 0 ||
-         urlpath.indexOf('/static') == 0 ||
-         static_.isExperimentalResource(urlpath);
-}
-
-/**
  * Base logic for handling all requests sent to the proxy web server. Some
  * requests are handled within the server, while some are proxied to the
  * Jupyter notebook server.
@@ -161,7 +151,7 @@ function uncheckedRequestHandler(request: http.ServerRequest, response: http.Ser
     auth.handleAuthFlow(request, response, parsed_url, appSettings);
   } else if (reverseProxyPort) {
     reverseProxy.handleRequest(request, response, reverseProxyPort);
-  } else if (isStaticResource(urlpath)) {
+  } else if (urlpath.indexOf('/static') == 0) {
     staticHandler(request, response);
   } else {
     handleRequest(request, response, urlpath);

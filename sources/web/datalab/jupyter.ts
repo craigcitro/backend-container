@@ -17,10 +17,8 @@
 /// <reference path="../../../third_party/externs/ts/node/tcp-port-used.d.ts" />
 /// <reference path="common.d.ts" />
 
-import auth = require('./auth')
 import callbacks = require('./callbacks');
 import childProcess = require('child_process');
-import crypto = require('crypto');
 import fs = require('fs');
 import http = require('http');
 import httpProxy = require('http-proxy');
@@ -29,7 +27,6 @@ import net = require('net');
 import path = require('path');
 import settings = require('./settings');
 import tcp = require('tcp-port-used');
-import url = require('url');
 
 interface JupyterServer {
   userId: string;
@@ -86,18 +83,6 @@ function getNextJupyterPort(attempts: number, resolved: (port: number)=>void, fa
  * at same time.
  */
 var callbackManager: callbacks.CallbackManager = new callbacks.CallbackManager();
-
-/**
- * Templates
- */
-const templates: common.Map<string> = {
-  // These cached templates can be overridden in sendTemplate
-  'tree': fs.readFileSync(path.join(__dirname, 'templates', 'tree.html'), { encoding: 'utf8' }),
-  'terminals': fs.readFileSync(path.join(__dirname, 'templates', 'terminals.html'), { encoding: 'utf8' }),
-  'sessions': fs.readFileSync(path.join(__dirname, 'templates', 'sessions.html'), { encoding: 'utf8' }),
-  'edit': fs.readFileSync(path.join(__dirname, 'templates', 'edit.html'), { encoding: 'utf8' }),
-  'nb': fs.readFileSync(path.join(__dirname, 'templates', 'nb.html'), { encoding: 'utf8' })
-};
 
 /**
  * The application settings instance.
@@ -324,62 +309,7 @@ export function handleRequest(request: http.ServerRequest, response: http.Server
     return;
   }
 
-  var path = url.parse(request.url).pathname;
-  if (path.indexOf('/sessions') == 0) {
-    var templateData: common.Map<string> = getBaseTemplateData(request);
-    sendTemplate('sessions', templateData, response);
-    return;
-  }
   server.proxy.web(request, response, null);
-}
-
-function getBaseTemplateData(request: http.ServerRequest): common.Map<string> {
-  const userId: string = 'anonymous';
-  const reportingEnabled: string = process.env.ENABLE_USAGE_REPORTING;
-  // TODO: Cache the gcloudAccount value so that we are not
-  // calling `gcloud` on every page load.
-  const gcloudAccount : string = auth.getGcloudAccount();
-  const signedIn = auth.isSignedIn(gcloudAccount);
-  let templateData: common.Map<string> = {
-    feedbackId: appSettings.feedbackId,
-    versionId: appSettings.versionId,
-    userId: userId,
-    configUrl: appSettings.configUrl,
-    knownTutorialsUrl: appSettings.knownTutorialsUrl,
-    baseUrl: appSettings.datalabBasePath,
-    reportingEnabled: reportingEnabled,
-    proxyWebSockets: appSettings.proxyWebSockets,
-    isSignedIn:  signedIn.toString(),
-  };
-  if (signedIn) {
-    templateData['account'] = gcloudAccount;
-    if (process.env.PROJECT_NUMBER) {
-      var hash = crypto.createHash('sha256');
-      hash.update(process.env.PROJECT_NUMBER);
-      templateData['projectHash'] = hash.digest('hex');
-    }
-  }
-  return templateData;
-}
-
-function sendTemplate(key: string, data: common.Map<string>, response: http.ServerResponse) {
-  let template = templates[key];
-
-  // Set this env var to point to source directory for live updates without restart.
-  const liveTemplatesDir = process.env.DATALAB_LIVE_TEMPLATES_DIR
-  if (liveTemplatesDir) {
-    template = fs.readFileSync(path.join(liveTemplatesDir, key + '.html'), { encoding: 'utf8' });
-  }
-
-  // Replace <%name%> placeholders with actual values.
-  // TODO: Error handling if template placeholders are out-of-sync with
-  //       keys in passed in data object.
-  const htmlContent = template.replace(/\<\%(\w+)\%\>/g, function(match, name) {
-    return data[name];
-  });
-
-  response.writeHead(200, { 'Content-Type': 'text/html' });
-  response.end(htmlContent);
 }
 
 function responseHandler(proxyResponse: http.ClientResponse,
@@ -397,46 +327,6 @@ function responseHandler(proxyResponse: http.ClientResponse,
 
   if (proxyResponse.statusCode != 200) {
     return;
-  }
-
-  // Set a cookie to provide information about the project and authenticated user to the client.
-  // Ensure this happens only for page requests, rather than for API requests.
-  var path = url.parse(request.url).pathname;
-  if ((path.indexOf('/tree') == 0) || (path.indexOf('/notebooks') == 0) ||
-      (path.indexOf('/edit') == 0) || (path.indexOf('/terminals') == 0)) {
-    var templateData: common.Map<string> = getBaseTemplateData(request);
-    var page: string = null;
-    if (path.indexOf('/tree') == 0) {
-      // stripping off the /tree/ from the path
-      templateData['notebookPath'] = path.substr(6);
-
-      page = 'tree';
-    } else if (path.indexOf('/edit') == 0) {
-      // stripping off the /edit/ from the path
-      templateData['filePath'] = path.substr(6);
-      templateData['fileName'] = path.substr(path.lastIndexOf('/') + 1);
-
-      page = 'edit';
-    } else if (path.indexOf('/terminals') == 0) {
-      templateData['terminalId'] = 'terminals/websocket/' + path.substr(path.lastIndexOf('/') + 1);
-      page = 'terminals';
-    } else {
-      // stripping off the /notebooks/ from the path
-      templateData['notebookPath'] = path.substr(11);
-      templateData['notebookName'] = path.substr(path.lastIndexOf('/') + 1);
-
-      page = 'nb';
-    }
-    sendTemplate(page, templateData, response);
-
-    // Suppress further writing to the response to prevent sending response
-    // from the notebook server. There is no way to communicate that, so hack around the
-    // limitation, by stubbing out all the relevant methods on the response with
-    // no-op methods.
-    response.setHeader = placeHolder;
-    response.writeHead = placeHolder;
-    response.write = placeHolder;
-    response.end = placeHolder;
   }
 }
 
