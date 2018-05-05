@@ -29,7 +29,6 @@ import settings_ = require('./settings');
 import sockets = require('./sockets');
 import static_ = require('./static');
 import url = require('url');
-import userManager = require('./userManager');
 import wsHttpProxy = require('./wsHttpProxy');
 import childProcess = require('child_process');
 
@@ -52,7 +51,7 @@ var loadedSettings: common.UserSettings = null;
  */
 function startInitializationForUser(request: http.ServerRequest): void {
   if (jupyter.getPort(request) == 0) {
-    var userId = userManager.getUserId(request);
+    var userId = 'anonymous';
     // Giving null callback so this is fire-and-forget.
     jupyter.startForUser(userId, null);
   }
@@ -64,7 +63,7 @@ function startInitializationForUser(request: http.ServerRequest): void {
  * the request to jupyter server.
  */
 function handleJupyterRequest(request: http.ServerRequest, response: http.ServerResponse): void {
-  var userId = userManager.getUserId(request);
+  var userId = 'anonymous';
 
   if (jupyter.getPort(request) == 0) {
     // Jupyter server is not created yet. Creating it for user and call self again.
@@ -94,7 +93,7 @@ function handleRequest(request: http.ServerRequest,
                        response: http.ServerResponse,
                        requestPath: string) {
 
-  var userId = userManager.getUserId(request);
+  var userId = 'anonymous';
   if (loadedSettings === null) {
     loadedSettings = settings_.loadUserSettings(userId);
   }
@@ -105,8 +104,6 @@ function handleRequest(request: http.ServerRequest,
   // Landing page redirects to /tree to be able to use the Jupyter file list as
   // the initial page.
   if (requestPath == '/') {
-    userManager.maybeSetUserIdCookie(request, response);
-
     response.statusCode = 302;
     var redirectUrl : string;
     if (loadedSettings.startuppath) {
@@ -264,7 +261,6 @@ function requestHandler(request: http.ServerRequest, response: http.ServerRespon
  */
 export function run(settings: common.AppSettings): void {
   appSettings = settings;
-  userManager.init(settings);
   jupyter.init(settings);
   auth.init(settings);
   reverseProxy.init(settings);

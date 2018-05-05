@@ -22,7 +22,6 @@ import logging = require('./logging');
 import path = require('path');
 import settings = require('./settings');
 import url = require('url');
-import userManager = require('./userManager');
 
 var appSettings: common.AppSettings;
 var CONTENT_TYPES: common.Map<string> = {
@@ -301,7 +300,7 @@ function requestHandler(request: http.ServerRequest, response: http.ServerRespon
     sendDataLabFile('datalab.js', response);
   }
   else if (pathname.lastIndexOf('/custom.css') > 0) {
-    var userId: string = userManager.getUserId(request);
+    var userId = 'anonymous';
     var userSettings: common.UserSettings = settings.loadUserSettings(userId);
     if ('theme' in userSettings) {
       var theme: string = userSettings['theme'];

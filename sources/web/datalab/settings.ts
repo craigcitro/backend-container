@@ -25,7 +25,6 @@ import querystring = require('querystring');
 import url = require('url');
 import util = require('util');
 import logging = require('./logging');
-import userManager = require('./userManager');
 
 var SETTINGS_FILE = 'settings.json';
 var DEFAULT_USER_SETTINGS_FILE = 'userSettings.json';
@@ -101,12 +100,21 @@ export function loadAppSettings(): common.AppSettings {
 }
 
 /**
+ * Get user directory which stores the user's notebooks.
+ * the directory is root_dir + emailaddress, such as '/content/user@domain.com'.
+ */
+export function getUserDir(userId: string): string {
+  const appSettings = loadAppSettings();
+  return path.join(appSettings.datalabRoot, appSettings.contentDir);
+}
+
+/**
  * Loads the path of the configuration directory for the user.
  *
  * @returns the path of the user's config directory.
  */
 export function getUserConfigDir(userId: string): string {
-  var userDir = userManager.getUserDir(userId);
+  var userDir = getUserDir(userId);
   var configPath = path.join(userDir, 'datalab', '.config');
   return configPath;
 }
@@ -290,7 +298,7 @@ function requestHandler(request: http.ServerRequest, response: http.ServerRespon
   if (request.url.indexOf('/_appsettings') === 0) {
     appSettingsHandler(request, response);
   } else {
-    var userId = userManager.getUserId(request);
+    var userId = 'anonymous';
     if ('POST' == request.method) {
       postSettingsHandler(userId, request, response);
     } else {

@@ -30,7 +30,6 @@ import path = require('path');
 import settings = require('./settings');
 import tcp = require('tcp-port-used');
 import url = require('url');
-import userManager = require('./userManager');
 
 interface JupyterServer {
   userId: string;
@@ -184,7 +183,7 @@ function createJupyterServerAtPort(port: number, userId: string, userDir: string
  */
 function createJupyterServer(userId: string, remainingAttempts: number) {
   logging.getLogger().info('Checking user dir for %s exists', userId);
-  var userDir = userManager.getUserDir(userId);
+  var userDir = settings.getUserDir(userId);
   logging.getLogger().info('Checking dir %s exists', userDir);
   if (!fs.existsSync(userDir)) {
     logging.getLogger().info('Creating user dir %s', userDir);
@@ -224,7 +223,7 @@ function createJupyterServer(userId: string, remainingAttempts: number) {
 }
 
 export function getPort(request: http.ServerRequest): number {
-  var userId = userManager.getUserId(request);
+  var userId = 'anonymous';
   var server = jupyterServers[userId];
 
   return server ? server.port : 0;
@@ -304,7 +303,7 @@ export function close(): void {
 
 
 export function handleSocket(request: http.ServerRequest, socket: net.Socket, head: Buffer) {
-  var userId = userManager.getUserId(request);
+  var userId = 'anonymous';
   var server = jupyterServers[userId];
   if (!server) {
     // should never be here.
@@ -315,7 +314,7 @@ export function handleSocket(request: http.ServerRequest, socket: net.Socket, he
 }
 
 export function handleRequest(request: http.ServerRequest, response: http.ServerResponse) {
-  var userId = userManager.getUserId(request);
+  var userId = 'anonymous';
   var server = jupyterServers[userId];
   if (!server) {
     // should never be here.
@@ -335,7 +334,7 @@ export function handleRequest(request: http.ServerRequest, response: http.Server
 }
 
 function getBaseTemplateData(request: http.ServerRequest): common.Map<string> {
-  const userId: string = userManager.getUserId(request);
+  const userId: string = 'anonymous';
   const reportingEnabled: string = process.env.ENABLE_USAGE_REPORTING;
   // TODO: Cache the gcloudAccount value so that we are not
   // calling `gcloud` on every page load.
