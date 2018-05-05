@@ -105,24 +105,8 @@ function handleRequest(request: http.ServerRequest,
   // the initial page.
   if (requestPath == '/') {
     response.statusCode = 302;
-    var redirectUrl : string;
-    if (loadedSettings.startuppath) {
-      let startuppath = loadedSettings.startuppath;
-
-      // For backward compatibility with the old path format, prepend /tree prefix.
-      // This code path should only be hit by the old Jupyter-based UI, which expects
-      // a '/' prefix in the startup path, but we don't want to replicate it if it
-      // is already saved in the user setting.
-      if (startuppath.indexOf('/tree') !== 0) {
-        startuppath = '/tree' + startuppath;
-      }
-      redirectUrl = startuppath;
-    } else {
-      redirectUrl = '/tree/datalab';
-    }
-    if (redirectUrl.indexOf(appSettings.datalabBasePath) != 0) {
-      redirectUrl = path.join(appSettings.datalabBasePath, redirectUrl);
-    }
+    var redirectUrl = path.join(
+        appSettings.datalabBasePath, '/tree/datalab');
     response.setHeader('Location', redirectUrl);
     response.end();
     return;
@@ -150,19 +134,6 @@ function handleRequest(request: http.ServerRequest,
       (requestPath.indexOf('/terminals') == 0) ||
       (requestPath.indexOf('/sessions') == 0)) {
 
-    if (requestPath.indexOf('/api/contents') == 0) {
-      const subPath = decodeURIComponent(requestPath.substr('/api/contents'.length));
-      const filePath = path.join('/content', subPath);
-      try {
-        if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
-          loadedSettings.startuppath = subPath;
-          settings_.updateUserSettingAsync(userId, 'startuppath', subPath);
-        } else {
-        }
-      } catch (err) {
-        logging.getLogger().error(err, 'Failed check for file "%s": %s', filePath, err.code);
-      }
-    }
     handleJupyterRequest(request, response);
     return;
   }
