@@ -16,7 +16,6 @@
 /// <reference path="../../../third_party/externs/ts/request/request.d.ts" />
 /// <reference path="common.d.ts" />
 
-import auth = require('./auth')
 import fs = require('fs');
 import http = require('http');
 import jupyter = require('./jupyter');
@@ -145,11 +144,7 @@ function uncheckedRequestHandler(request: http.ServerRequest, response: http.Ser
 
   var reverseProxyPort: string = reverseProxy.getRequestPort(request, urlpath);
     
-  if (urlpath.indexOf('/signin') == 0 || urlpath.indexOf('/signout') == 0 ||
-      urlpath.indexOf('/oauthcallback') == 0) {
-    // Start or return from auth flow.
-    auth.handleAuthFlow(request, response, parsed_url, appSettings);
-  } else if (reverseProxyPort) {
+  if (reverseProxyPort) {
     reverseProxy.handleRequest(request, response, reverseProxyPort);
   } else if (urlpath.indexOf('/static') == 0) {
     staticHandler(request, response);
@@ -201,7 +196,6 @@ function requestHandler(request: http.ServerRequest, response: http.ServerRespon
 export function run(settings: common.AppSettings): void {
   appSettings = settings;
   jupyter.init(settings);
-  auth.init(settings);
   reverseProxy.init(settings);
   sockets.init(settings);
 
