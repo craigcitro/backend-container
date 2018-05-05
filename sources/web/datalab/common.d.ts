@@ -14,10 +14,6 @@
 
 declare module common {
 
-  interface UserSettings {
-    [index: string]: string,
-  }
-
   interface AppSettings {
 
     /**

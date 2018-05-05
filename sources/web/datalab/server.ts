@@ -38,7 +38,6 @@ var staticHandler: http.RequestHandler;
  * The application settings instance.
  */
 var appSettings: common.AppSettings;
-var loadedSettings: common.UserSettings = null;
 
 /**
  * If it is the user's first request since the web server restarts,
@@ -90,11 +89,6 @@ function handleJupyterRequest(request: http.ServerRequest, response: http.Server
 function handleRequest(request: http.ServerRequest,
                        response: http.ServerResponse,
                        requestPath: string) {
-
-  var userId = 'anonymous';
-  if (loadedSettings === null) {
-    loadedSettings = settings_.loadUserSettings(userId);
-  }
 
   // If Jupyter is not initialized, do it as early as possible after authentication.
   startInitializationForUser(request);

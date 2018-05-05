@@ -15,20 +15,13 @@
 /// <reference path="../../../third_party/externs/ts/node/node.d.ts" />
 /// <reference path="common.d.ts" />
 
-import childProcess = require('child_process');
 import fs = require('fs');
-import http = require('http');
 import path = require('path');
-import querystring = require('querystring');
-import url = require('url');
 import util = require('util');
 import logging = require('./logging');
 
 var SETTINGS_FILE = 'settings.json';
-var DEFAULT_USER_SETTINGS_FILE = 'userSettings.json';
 var BASE_PATH_FILE = 'basePath.json';
-
-let lastUpdateUserSettingPromise = Promise.resolve(false);
 
 /**
  * Loads the configuration settings for the application to use.
@@ -96,95 +89,6 @@ export function getUserConfigDir(userId: string): string {
   return configPath;
 }
 
-/**
- * Copies the default user settings into the user's directory.
- */
-function getDefaultUserSettings(userId: string) {
-  const defaultUserSettingsPath = path.join(__dirname, 'config', DEFAULT_USER_SETTINGS_FILE);
-  _log('Getting default settings: ' + defaultUserSettingsPath);
-  // Copy the default user settings file into user's directory.
-  const defaultUserSettings = fs.readFileSync(defaultUserSettingsPath, {encoding: 'utf8'});
-  const initialUserSettings = process.env.DATALAB_INITIAL_USER_SETTINGS;
-  const mergedUserSettings : string = initialUserSettings ?
-      mergeUserSettings(defaultUserSettings, initialUserSettings) : defaultUserSettings;
-  return mergedUserSettings;
-}
-
-/**
- * Copies the default user settings into the user's directory.
- */
-function copyDefaultUserSettings(userId: string) {
-  var userSettingsPath = path.join(getUserConfigDir(userId), SETTINGS_FILE);
-  _log('Copying default settings to: ' + userSettingsPath);
-  fs.writeFileSync(userSettingsPath, getDefaultUserSettings(userId));
-  // writeFileSync does not return a status; let's see if it wrote a file.
-  if (!fs.existsSync(userSettingsPath)) {
-    _log('Failed to write new user settings file ' + userSettingsPath);
-  }
-}
-
-/**
- * Merges two sets of user settings, giving priority to the second.
- * Exported for testing.
- */
-export function mergeUserSettings(defaultUserSettings: string, initialUserSettings: string): string {
-  let parsedDefaultUserSettings;
-  try {
-    parsedDefaultUserSettings = JSON.parse(defaultUserSettings || '{}')
-  } catch (e) {
-    // File is corrupt, or a developer has updated the defaults file with an error
-    _log('Error parsing default user settings:', e);
-    // We can't merge here, and this will probably cause problems down the line, but
-    // this should not happen, so hopefully the developer will see this and fix
-    // the default settings file.
-    return defaultUserSettings;
-  }
-
-  let parsedInitialUserSettings;
-  try {
-    parsedInitialUserSettings = JSON.parse(initialUserSettings || '{}')
-  } catch (e) {
-    // The user's initial settings are not valid, we will ignore them.
-    _log('Error parsing initial user settings:', e);
-    return defaultUserSettings;
-  }
-
-  // Override the default settings with the specified initial settings
-  const merged = {...parsedDefaultUserSettings, ...parsedInitialUserSettings};
-  return JSON.stringify(merged);
-}
-
-/**
- * Loads the configuration settings for the user.
- *
- * @returns the key:value mapping of settings for the user.
- */
-export function loadUserSettings(userId: string): common.UserSettings {
-  var settingsPath = path.join(getUserConfigDir(userId), SETTINGS_FILE);
-  if (!fs.existsSync(settingsPath)) {
-    _log('User settings file %s not found, copying default settings.', settingsPath);
-    try {
-      copyDefaultUserSettings(userId);
-    }
-    catch (e) {
-      _log('Failed to copy default settings, using from existing location.', e);
-      return <common.UserSettings>JSON.parse(getDefaultUserSettings(userId));
-    }
-  }
-
-  try {
-    const settings = <common.UserSettings>JSON.parse(fs.readFileSync(settingsPath, 'utf8') || '{}');
-    return settings;
-  }
-  catch (e) {
-    _logError('Failed to load user settings from ' + settingsPath + ':', e);
-    // Move the corrupt file to another name where the user can examine the
-    // contents later to see what went wrong.
-    renameBadUserSettings(settingsPath);
-    return {} as common.UserSettings;
-  }
-}
-
 // Exported for testing
 export function ensureDirExists(fullPath: string): boolean {
   if (path.dirname(fullPath) == fullPath) {
@@ -203,27 +107,6 @@ export function ensureDirExists(fullPath: string): boolean {
   }
   fs.mkdirSync(fullPath);
   return true;
-}
-
-function renameBadUserSettings(settingsPath: string) {
-  let newPath = settingsPath + ".bad";
-  let n = 0;
-  const maxBackups = 10;
-  while (fs.existsSync(newPath) && n < maxBackups) {
-    n = n + 1;
-    newPath = settingsPath + ".bad-" + n;
-  }
-  if (n >= maxBackups) {
-    _logError('Too many backups already (%d), not renaming bad file %s',
-        maxBackups, settingsPath);
-  } else {
-    fs.renameSync(settingsPath, newPath);
-    if (fs.existsSync(newPath)) {
-      _logError('Moved bad file %s to %s', settingsPath, newPath);
-    } else {
-      _logError('Failed to move bad file %s to %s', settingsPath, newPath);
-    }
-  }
 }
 
 /**
