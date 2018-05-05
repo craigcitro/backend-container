@@ -46,7 +46,6 @@ export function loadAppSettings(): common.AppSettings {
 
   try {
     const settings = <common.AppSettings>JSON.parse(fs.readFileSync(settingsPath, 'utf8') || '{}');
-    settings.versionId = process.env['DATALAB_VERSION'] || '';
     if (!fs.existsSync(basePathFile)) {
       _log('Base path setting file not found, falling back to empty path.');
       settings.datalabBasePath = '';

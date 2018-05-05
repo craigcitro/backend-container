@@ -1,19 +1,10 @@
 {
   "allowHttpOverWebsocket": false,
   "allowOriginOverrides": [],
-  "analyticsId": "",
-  "configUrl": "",
   "consoleLogging": true,
   "consoleLogLevel": "warn",
   "contentDir": "/content",
   "datalabRoot": "",
-  "defaultFileManager": "",
-  "docsGcsPath": "",
-  "enableAutoGCSBackups": false,
-  "enableFilesystemIndex": true,
-  "fakeMetadataAddress": {"host": "metadata.google.internal", "port": 80},
-  "feedbackId": "",
-  "gatedFeatures": ["timeout", "userSettings"],
   "jupyterArgs": [
     "notebook",
     "-y",
@@ -33,20 +24,11 @@
     "--MultiKernelManager.default_kernel_name=\"python2\"",
     "--ip=\"127.0.0.1\""
   ],
-  "knownTutorialsUrl": "",
-  "logEndpoint": "",
   "logFileCount": 10,
   "logFilePath": "/var/log/app_engine/custom_logs/app.log",
   "logFilePeriod": "300000ms",
   "nextJupyterPort": 9000,
-  "numDailyBackups": 7,
-  "numHourlyBackups": 10,
-  "numWeeklyBackups": 20,
   "proxyWebSockets": false,
-  "release": "beta",
   "serverPort": 8080,
-  "socketioPort": 8084,
-  "supportedFileBrowserSources": ["jupyter"],
-  "supportUserOverride": false,
-  "useWorkspace": false
+  "socketioPort": 8084
 }
