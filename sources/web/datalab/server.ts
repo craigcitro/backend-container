@@ -33,7 +33,6 @@ import wsHttpProxy = require('./wsHttpProxy');
 import childProcess = require('child_process');
 
 var server: http.Server;
-var settingHandler: http.RequestHandler;
 var staticHandler: http.RequestHandler;
 
 /**
@@ -101,30 +100,15 @@ function handleRequest(request: http.ServerRequest,
   // If Jupyter is not initialized, do it as early as possible after authentication.
   startInitializationForUser(request);
 
-  // Landing page redirects to /tree to be able to use the Jupyter file list as
-  // the initial page.
-  if (requestPath == '/') {
-    response.statusCode = 302;
-    var redirectUrl = path.join(
-        appSettings.datalabBasePath, '/tree/datalab');
-    response.setHeader('Location', redirectUrl);
-    response.end();
-    return;
-  }
-
   if (requestPath.indexOf('/api/basepath') === 0) {
     response.statusCode = 200;
     response.end(appSettings.datalabBasePath);
     return;
   }
   
-  if (requestPath.indexOf('/_appsettings') === 0) {
-    settingHandler(request, response);
-    return;
-  }
-
   // Requests proxied to Jupyter
-  if ((requestPath.indexOf('/api') == 0) ||
+  if ((requestPath == '/') ||
+      (requestPath.indexOf('/api') == 0) ||
       (requestPath.indexOf('/tree') == 0) ||
       (requestPath.indexOf('/notebooks') == 0) ||
       (requestPath.indexOf('/nbconvert') == 0) ||
@@ -135,12 +119,6 @@ function handleRequest(request: http.ServerRequest,
       (requestPath.indexOf('/sessions') == 0)) {
 
     handleJupyterRequest(request, response);
-    return;
-  }
-
-  // /_usersettings updates a per-user setting.
-  if (requestPath.indexOf('/_usersettings') == 0) {
-    settingHandler(request, response);
     return;
   }
 
@@ -237,7 +215,6 @@ export function run(settings: common.AppSettings): void {
   reverseProxy.init(settings);
   sockets.init(settings);
 
-  settingHandler = settings_.createHandler();
   staticHandler = static_.createHandler(settings);
 
   server = http.createServer(requestHandler);
