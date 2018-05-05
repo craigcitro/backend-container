@@ -13,13 +13,11 @@
  */
 
 /// <reference path="../../../third_party/externs/ts/node/node.d.ts" />
-/// <reference path="../../../third_party/externs/ts/node/node-uuid.d.ts" />
 /// <reference path="common.d.ts" />
 
 import childProcess = require('child_process');
 import fs = require('fs');
 import http = require('http');
-import uuid = require('node-uuid');
 import path = require('path');
 import querystring = require('querystring');
 import url = require('url');
@@ -28,14 +26,9 @@ import logging = require('./logging');
 
 var SETTINGS_FILE = 'settings.json';
 var DEFAULT_USER_SETTINGS_FILE = 'userSettings.json';
-var METADATA_FILE = 'metadata.json';
 var BASE_PATH_FILE = 'basePath.json';
 
 let lastUpdateUserSettingPromise = Promise.resolve(false);
-
-interface Metadata {
-  instanceId: string;
-}
 
 /**
  * Loads the configuration settings for the application to use.
@@ -45,7 +38,6 @@ interface Metadata {
 export function loadAppSettings(): common.AppSettings {
   var settingsPath = path.join(__dirname, 'config', SETTINGS_FILE);
   var basePathFile = path.join(__dirname, 'config', BASE_PATH_FILE);
-  var metadataPath = path.join(__dirname, 'config', METADATA_FILE);
 
   if (!fs.existsSync(settingsPath)) {
     _logError('App settings file %s not found.', settingsPath);
@@ -53,17 +45,6 @@ export function loadAppSettings(): common.AppSettings {
   }
 
   try {
-    var metadata: Metadata = null;
-    if (!fs.existsSync(metadataPath)) {
-      // Create an write out metadata on the first run if it doesn't exist.
-      metadata = { instanceId: uuid.v4() };
-      fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2), { encoding: 'utf8' });
-    }
-    else {
-      // Load metadata from the file system. This is written out on the first run.
-      metadata = <Metadata>JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
-    }
-
     const settings = <common.AppSettings>JSON.parse(fs.readFileSync(settingsPath, 'utf8') || '{}');
     settings.versionId = process.env['DATALAB_VERSION'] || '';
     if (!fs.existsSync(basePathFile)) {
