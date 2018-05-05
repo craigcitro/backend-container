@@ -35,19 +35,6 @@ export function init(settings: common.AppSettings): void {
  * Get user id from request. User Id is typically an email address.
  */
 export function getUserId(request: http.ServerRequest): string {
-  if (appSettings.supportUserOverride) {
-    // Try cookie first.
-    if (request.headers.cookie) {
-      var cookies = request.headers.cookie.split(';');
-      for (var i = 0; i < cookies.length; ++i) {
-        var parts = cookies[i].split('=');
-        if (parts.length == 2 && parts[0] == 'datalab_user' && parts[1]) {
-          return parts[1];
-        }
-      }
-    }
-  }
-
   return request.headers['x-appengine-user-email'] || 'anonymous';
 }
 
@@ -73,11 +60,4 @@ export function getUserDir(userId: string): string {
  */
 export function maybeSetUserIdCookie(request: http.ServerRequest,
                                      response: http.ServerResponse): void {
-  if (appSettings.supportUserOverride) {
-    var userFromQuery = url.parse(request.url, /* parseQuery */ true).query['datalab_user'];
-    if (userFromQuery) {
-      response.setHeader('set-cookie', 'datalab_user=' + userFromQuery);
-      logging.getLogger().info('set userId %s to cookie', userFromQuery);
-    }
-  }
 }

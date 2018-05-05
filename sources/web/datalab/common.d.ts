@@ -110,8 +110,7 @@ declare module common {
     useWorkspace: boolean;
 
     /**
-     * Whether to support querystring based user overriding.
-     * Useful when debugging multi-user functionality locally.
+     * Deprecated.
      */
     supportUserOverride: boolean;
 
