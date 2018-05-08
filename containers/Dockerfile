@@ -147,7 +147,7 @@ RUN apt-get update && \
     cd /backend-container/sources/web/datalab && \
     /tools/node/bin/npm install && \
     /tools/node/bin/npm run transpile -- --outDir /datalab/web && \
-    cp -a config package.json static templates /datalab/web && \
+    cp -a config package.json /datalab/web && \
     cd / && \
     /tools/node/bin/npm install -g forever && \
 
