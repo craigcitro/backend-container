@@ -16,14 +16,11 @@
 /// <reference path="../../../third_party/externs/ts/request/request.d.ts" />
 /// <reference path="common.d.ts" />
 
-import auth = require('./auth')
 import fs = require('fs');
-import health = require('./health');
 import http = require('http');
 import jupyter = require('./jupyter');
 import logging = require('./logging');
 import net = require('net');
-import noCacheContent = require('./noCacheContent')
 import path = require('path');
 import request = require('request');
 import reverseProxy = require('./reverseProxy');
@@ -31,20 +28,16 @@ import settings_ = require('./settings');
 import sockets = require('./sockets');
 import static_ = require('./static');
 import url = require('url');
-import userManager = require('./userManager');
 import wsHttpProxy = require('./wsHttpProxy');
 import childProcess = require('child_process');
 
 var server: http.Server;
-var healthHandler: http.RequestHandler;
-var settingHandler: http.RequestHandler;
 var staticHandler: http.RequestHandler;
 
 /**
  * The application settings instance.
  */
 var appSettings: common.AppSettings;
-var loadedSettings: common.UserSettings = null;
 
 /**
  * If it is the user's first request since the web server restarts,
@@ -55,9 +48,8 @@ var loadedSettings: common.UserSettings = null;
  */
 function startInitializationForUser(request: http.ServerRequest): void {
   if (jupyter.getPort(request) == 0) {
-    var userId = userManager.getUserId(request);
     // Giving null callback so this is fire-and-forget.
-    jupyter.startForUser(userId, null);
+    jupyter.start(null);
   }
 }
 
@@ -67,13 +59,12 @@ function startInitializationForUser(request: http.ServerRequest): void {
  * the request to jupyter server.
  */
 function handleJupyterRequest(request: http.ServerRequest, response: http.ServerResponse): void {
-  var userId = userManager.getUserId(request);
 
   if (jupyter.getPort(request) == 0) {
     // Jupyter server is not created yet. Creating it for user and call self again.
-    // Another 'startForUser' may already be ongoing so this 'syncNow' will probably
+    // Another 'start' may already be ongoing so this 'syncNow' will probably
     // be parked until the ongoing one is done.
-    jupyter.startForUser(userId, function(e) {
+    jupyter.start(function(e) {
       if (e) {
         response.statusCode = 500;
         response.end();
@@ -97,52 +88,8 @@ function handleRequest(request: http.ServerRequest,
                        response: http.ServerResponse,
                        requestPath: string) {
 
-  var userId = userManager.getUserId(request);
-  if (loadedSettings === null) {
-    loadedSettings = settings_.loadUserSettings(userId);
-  }
-
   // If Jupyter is not initialized, do it as early as possible after authentication.
   startInitializationForUser(request);
-
-  // Landing page redirects to /tree to be able to use the Jupyter file list as
-  // the initial page.
-  if (requestPath == '/') {
-    userManager.maybeSetUserIdCookie(request, response);
-
-    response.statusCode = 302;
-    var redirectUrl : string;
-    if (loadedSettings.startuppath) {
-      let startuppath = loadedSettings.startuppath;
-
-      // For backward compatibility with the old path format, prepend /tree prefix.
-      // This code path should only be hit by the old Jupyter-based UI, which expects
-      // a '/' prefix in the startup path, but we don't want to replicate it if it
-      // is already saved in the user setting.
-      if (startuppath.indexOf('/tree') !== 0) {
-        startuppath = '/tree' + startuppath;
-      }
-      redirectUrl = startuppath;
-    } else {
-      redirectUrl = '/tree/datalab';
-    }
-    if (redirectUrl.indexOf(appSettings.datalabBasePath) != 0) {
-      redirectUrl = path.join(appSettings.datalabBasePath, redirectUrl);
-    }
-    response.setHeader('Location', redirectUrl);
-    response.end();
-    return;
-  }
-
-  if (requestPath.indexOf('/_nocachecontent/') == 0) {
-    if (process.env.KG_URL) {
-      reverseProxy.handleRequest(request, response, null);
-    }
-    else {
-      noCacheContent.handleRequest(requestPath, response);
-    }
-    return;
-  }
 
   if (requestPath.indexOf('/api/basepath') === 0) {
     response.statusCode = 200;
@@ -150,13 +97,9 @@ function handleRequest(request: http.ServerRequest,
     return;
   }
   
-  if (requestPath.indexOf('/_appsettings') === 0) {
-    settingHandler(request, response);
-    return;
-  }
-
   // Requests proxied to Jupyter
-  if ((requestPath.indexOf('/api') == 0) ||
+  if ((requestPath == '/') ||
+      (requestPath.indexOf('/api') == 0) ||
       (requestPath.indexOf('/tree') == 0) ||
       (requestPath.indexOf('/notebooks') == 0) ||
       (requestPath.indexOf('/nbconvert') == 0) ||
@@ -166,42 +109,13 @@ function handleRequest(request: http.ServerRequest,
       (requestPath.indexOf('/terminals') == 0) ||
       (requestPath.indexOf('/sessions') == 0)) {
 
-    if (requestPath.indexOf('/api/contents') == 0) {
-      const subPath = decodeURIComponent(requestPath.substr('/api/contents'.length));
-      const filePath = path.join('/content', subPath);
-      try {
-        if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
-          loadedSettings.startuppath = subPath;
-          settings_.updateUserSettingAsync(userId, 'startuppath', subPath);
-        } else {
-        }
-      } catch (err) {
-        logging.getLogger().error(err, 'Failed check for file "%s": %s', filePath, err.code);
-      }
-    }
     handleJupyterRequest(request, response);
-    return;
-  }
-
-  // /_usersettings updates a per-user setting.
-  if (requestPath.indexOf('/_usersettings') == 0) {
-    settingHandler(request, response);
     return;
   }
 
   // Not Found
   response.statusCode = 404;
   response.end();
-}
-
-/**
- * Returns true iff the supplied path should be handled by the static handler
- */
-function isStaticResource(urlpath: string) {
-  // /static and /custom paths for returning static content
-  return urlpath.indexOf('/custom') == 0 ||
-         urlpath.indexOf('/static') == 0 ||
-         static_.isExperimentalResource(urlpath);
 }
 
 /**
@@ -221,14 +135,10 @@ function uncheckedRequestHandler(request: http.ServerRequest, response: http.Ser
   logging.logRequest(request, response);
 
   var reverseProxyPort: string = reverseProxy.getRequestPort(request, urlpath);
-
-  if (urlpath.indexOf('/signin') == 0 || urlpath.indexOf('/signout') == 0 ||
-      urlpath.indexOf('/oauthcallback') == 0) {
-    // Start or return from auth flow.
-    auth.handleAuthFlow(request, response, parsed_url, appSettings);
-  } else if (reverseProxyPort) {
+    
+  if (reverseProxyPort) {
     reverseProxy.handleRequest(request, response, reverseProxyPort);
-  } else if (isStaticResource(urlpath)) {
+  } else if (urlpath.indexOf('/static') == 0) {
     staticHandler(request, response);
   } else {
     handleRequest(request, response, urlpath);
@@ -277,15 +187,10 @@ function requestHandler(request: http.ServerRequest, response: http.ServerRespon
  */
 export function run(settings: common.AppSettings): void {
   appSettings = settings;
-  userManager.init(settings);
   jupyter.init(settings);
-  auth.init(settings);
-  noCacheContent.init(settings);
   reverseProxy.init(settings);
   sockets.init(settings);
 
-  healthHandler = health.createHandler(settings);
-  settingHandler = settings_.createHandler();
   staticHandler = static_.createHandler(settings);
 
   server = http.createServer(requestHandler);

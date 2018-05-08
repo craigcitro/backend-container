@@ -13,7 +13,6 @@
  */
 
 /// <reference path="../../../third_party/externs/ts/node/node.d.ts" />
-/// <reference path="../../../third_party/externs/ts/node/node-uuid.d.ts" />
 /// <reference path="../../../third_party/externs/ts/node/bunyan.d.ts" />
 /// <reference path="../../../third_party/externs/ts/node/mkdirp.d.ts" />
 /// <reference path="common.d.ts" />
@@ -23,7 +22,6 @@ import fs = require('fs');
 import http = require('http');
 import mkdirp = require('mkdirp');
 import path = require('path');
-import uuid = require('node-uuid');
 
 var logger: bunyan.ILogger = null;
 var requestLogger: bunyan.ILogger = null;

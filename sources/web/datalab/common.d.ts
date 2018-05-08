@@ -14,14 +14,6 @@
 
 declare module common {
 
-  interface UserSettings {
-    startuppath: string,
-    theme: string,
-    idleTimeoutShutdownCommand: string,
-    idleTimeoutInterval: string,
-    [index: string]: string,
-  }
-
   interface AppSettings {
 
     /**
@@ -36,27 +28,9 @@ declare module common {
      */
     consoleLogLevel: string;
 
-    /**
-     * The default file manager type to use if none is specified.
-     */
-    defaultFileManager: string;
-
     logFilePath: string;
     logFilePeriod: string;
     logFileCount: number;
-
-    release: string;
-    versionId: string;
-    instanceId: string;
-    configUrl: string;
-    knownTutorialsUrl: string;
-    feedbackId: string;
-    logEndpoint: string;
-
-    /**
-     * Where to update docs, samples.
-     */
-    docsGcsPath: string;
 
     /**
      * The port that the server should listen to.
@@ -105,24 +79,6 @@ declare module common {
     contentDir: string;
 
     /**
-     * Whether to use the git and workspace functionality.
-     */
-    useWorkspace: boolean;
-
-    /**
-     * Whether to support querystring based user overriding.
-     * Useful when debugging multi-user functionality locally.
-     */
-    supportUserOverride: boolean;
-
-    /**
-     * Metadata host name. If specified, will override the default
-     * metadata host in AppEngine VM, mostly for local run so that
-     * the service account access token will be available locally.
-     */
-    metadataHost: string;
-
-    /**
      * The value for the access-control-allow-origin header. This
      * allows another frontend to connect to Datalab.
      */
@@ -132,69 +88,6 @@ declare module common {
      * If true, allow HTTP requests via websockets.
      */
     allowHttpOverWebsocket: boolean;
-
-    /**
-     * Whether to automatically back up user's contents dir to GCS
-     */
-    enableAutoGCSBackups: boolean;
-
-    /**
-     * Whether to index the file system for finding files
-     */
-    enableFilesystemIndex: boolean;
-
-    /**
-     * Number of hourly GCS backups of the user's content dir to keep
-     */
-    numHourlyBackups: number;
-
-    /**
-     * Number of daily GCS backups of the user's content dir to keep
-     */
-    numDailyBackups: number;
-
-    /**
-     * Number of weekly GCS backups of the user's content dir to keep
-     */
-    numWeeklyBackups: number;
-
-    /**
-     * The idle timeout interval, such as "2h 30m".
-     */
-    idleTimeoutInterval: string;
-
-    /**
-     * The shutdown command to use after an idle timeout.
-     */
-    idleTimeoutShutdownCommand: string;
-
-    /**
-     * List of supported sources for the file browser.
-     * Possible options are: jupyter, drive, sharedDrive, docs, and bigquery
-     */
-    supportedFileBrowserSources: string[];
-
-    /**
-     * The host/port on which to serve the fake metadata service, if active.
-     */
-    fakeMetadataAddress: {host: "metadata.google.internal"|"metadata"|null, port: number};
-
-    /**
-     * List of features that can be optinally enabled.
-     */
-    gatedFeatures: string[];
-
-    /**
-     * OAuth client ID to use for Google service APIs.
-     */
-    oauth2ClientId: string,
-  }
-
-  interface TimeoutInfo {
-    enabled: boolean;
-    expirationTime: number;
-    secondsRemaining: number;
-    idleTimeoutSeconds: number;
   }
 
   interface Map<T> {
@@ -208,8 +101,4 @@ declare module common {
   interface Callback0 {
     (e: Error): void;
   }
-}
-
-interface Window {
-  datalab: { [key: string]: string }
 }
