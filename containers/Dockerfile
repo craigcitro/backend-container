@@ -104,8 +104,6 @@ RUN apt-get update && \
 # Add a global pip.conf to avoid warnings on `pip list` and friends.
     cp /backend-container/containers/pip.conf /etc/ && \
 
-# TODO(b/69087391): Clean up the ordering of the RUN commands below.
-
 # Setup Python packages. One package isn't available from PyPA, so we
 # install it manually to save on install time.
 #
