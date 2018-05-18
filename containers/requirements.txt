@@ -1,4 +1,8 @@
 PyYAML~=3.12
+# Because we enable altair's colab renderer in the ipython.py startup script,
+# we pin this to an exact version so that colab startup can't be broken by
+# external package updates
+altair==2.0.1
 beautifulsoup4~=4.6.0
 crcmod~=1.7
 future~=0.16.0
@@ -42,4 +46,5 @@ statsmodels~=0.8.0
 sympy~=1.1.0
 tensorflow-hub~=0.1.0
 tornado~=4.5.0
+vega_datasets~=0.5.0
 xgboost~=0.7.0

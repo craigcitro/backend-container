@@ -25,12 +25,21 @@ c.InteractiveShellApp.extensions = [
     'seaborn',
 ]
 
+ENABLE_ALTAIR = """
+import altair
+try:
+  altair.renderers.enable('colab')
+finally:
+  del altair
+"""
+
 # Startup code.
 c.InteractiveShellApp.exec_lines = [
     'from google.colab import _shell_customizations',
     '_shell_customizations.initialize()',
     # TODO(b/72409705): Remove this extra import.
     'import h5py',
+    ENABLE_ALTAIR,
 ]
 
 # Enable matplotlib renderings to show up inline in the notebook.
