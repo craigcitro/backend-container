@@ -95,8 +95,8 @@ RUN apt-get update && \
     for v in 2 3; do for f in /*tensorflow*-cp${v}*.whl; do pip${v} download -d /tf_deps $f; done; done && \
 
 # Install wheel for use below.
-    pip3 install --upgrade wheel && \
-    pip2 install --upgrade wheel && \
+    python3 -m pip install --upgrade wheel && \
+    python2 -m pip install --upgrade wheel && \
 
 # Assume yes to all apt commands, to avoid user confusion around stdin.
     cp /backend-container/containers/90assumeyes /etc/apt/apt.conf.d/ && \
@@ -109,10 +109,10 @@ RUN apt-get update && \
 #
 # Order is important here: we always do the python3 variants *before* the
 # python2 ones, so that installed scripts still default to python2.
-    pip2 install -U http://wheels.scipy.org/subprocess32-3.5.0-cp27-cp27mu-manylinux1_x86_64.whl && \
-    pip3 install -U --upgrade-strategy only-if-needed --no-cache-dir \
+    python2 -m pip install -U http://wheels.scipy.org/subprocess32-3.5.0-cp27-cp27mu-manylinux1_x86_64.whl && \
+    python3 -m pip install -U --upgrade-strategy only-if-needed --no-cache-dir \
         -r /backend-container/containers/requirements.txt && \
-    pip2 install -U --upgrade-strategy only-if-needed --no-cache-dir \
+    python2 -m pip install -U --upgrade-strategy only-if-needed --no-cache-dir \
         -r /backend-container/containers/requirements.txt \
         -r /backend-container/containers/requirements2.txt && \
 
@@ -159,8 +159,8 @@ RUN apt-get update && \
     cp -a /backend-container/colabtools /colabtools && \
     cd /colabtools && \
     python setup.py sdist && \
-    pip3 install /colabtools/dist/google-colab-0.0.1a1.tar.gz && \
-    pip2 install /colabtools/dist/google-colab-0.0.1a1.tar.gz && \
+    python3 -m pip install /colabtools/dist/google-colab-0.0.1a1.tar.gz && \
+    python2 -m pip install /colabtools/dist/google-colab-0.0.1a1.tar.gz && \
     jupyter nbextension install --py google.colab && \
 
 # Set up our pip/python aliases. We just copy the same file to two places
