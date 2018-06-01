@@ -12,8 +12,8 @@
  * the License.
  */
 
-/// <reference path="../../../third_party/externs/ts/node/node.d.ts" />
-/// <reference path="../../../third_party/externs/ts/request/request.d.ts" />
+/// <reference path="./externs/node/node.d.ts" />
+/// <reference path="./externs/request/request.d.ts" />
 /// <reference path="common.d.ts" />
 
 import fs = require('fs');
