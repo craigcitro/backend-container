@@ -13,7 +13,6 @@
  */
 
 /// <reference path="./externs/node/node.d.ts" />
-/// <reference path="./externs/request/request.d.ts" />
 /// <reference path="common.d.ts" />
 
 import fs = require('fs');
@@ -22,7 +21,6 @@ import jupyter = require('./jupyter');
 import logging = require('./logging');
 import net = require('net');
 import path = require('path');
-import request = require('request');
 import reverseProxy = require('./reverseProxy');
 import settings_ = require('./settings');
 import sockets = require('./sockets');
