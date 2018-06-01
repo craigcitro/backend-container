@@ -12,8 +12,8 @@
  * the License.
  */
 
-/// <reference path="./externs/node/node.d.ts" />
-/// <reference path="./externs/node/node-http-proxy.d.ts" />
+/// <reference path="./externs/node.d.ts" />
+/// <reference path="./externs/node-http-proxy.d.ts" />
 /// <reference path="common.d.ts" />
 
 import fs = require('fs');

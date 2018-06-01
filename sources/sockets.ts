@@ -12,9 +12,9 @@
  * the License.
  */
 
-/// <reference path="./externs/node/node.d.ts" />
-/// <reference path="./externs/node/socket.io.d.ts" />
-/// <reference path="./externs/node/node-ws.d.ts" />
+/// <reference path="./externs/node.d.ts" />
+/// <reference path="./externs/socket.io.d.ts" />
+/// <reference path="./externs/node-ws.d.ts" />
 /// <reference path="common.d.ts" />
 
 import http = require('http');

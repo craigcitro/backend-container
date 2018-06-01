@@ -12,9 +12,9 @@
  * the License.
  */
 
-/// <reference path="./externs/node/node.d.ts" />
-/// <reference path="./externs/node/node-http-proxy.d.ts" />
-/// <reference path="./externs/node/tcp-port-used.d.ts" />
+/// <reference path="./externs/node.d.ts" />
+/// <reference path="./externs/node-http-proxy.d.ts" />
+/// <reference path="./externs/tcp-port-used.d.ts" />
 /// <reference path="common.d.ts" />
 
 import callbacks = require('./callbacks');
