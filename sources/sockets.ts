@@ -12,7 +12,6 @@
  * the License.
  */
 
-/// <reference path="./externs/node.d.ts" />
 /// <reference path="./externs/socket.io.d.ts" />
 /// <reference path="./externs/node-ws.d.ts" />
 /// <reference path="common.d.ts" />

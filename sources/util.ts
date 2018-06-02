@@ -12,22 +12,13 @@
  * the License.
  */
 
-declare module 'http-proxy' {
-  import events = require('events');
-  import http = require('http');
-  import net = require('net');
+import http = require('http');
 
-  export interface ProxyServerOptions {
-    target: string;
-  }
-
-  export interface ProxyServer extends events.EventEmitter {
-    options: ProxyServerOptions;
-    web(request: http.ServerRequest, response: http.ServerResponse, options: ProxyServerOptions): void;
-    ws(request: http.ServerRequest, socket: net.Socket, head: Buffer): void;
-    listen(options: any): void;
-    close(): void;
-  }
-
-  export function createProxyServer(options: ProxyServerOptions): ProxyServer;
+export function headerAsString(header: string | string[]): string {
+    if (typeof header == 'string') {
+        return header;
+    } else {
+        return header.join();
+    };
 }
+

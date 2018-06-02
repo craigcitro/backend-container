@@ -17,8 +17,6 @@
  * Type definitions for bunyan node module v 1.2.0
  */
 
-/// <reference path="node.d.ts" />
-
 declare module 'bunyan' {
 
   export interface Map<T> {

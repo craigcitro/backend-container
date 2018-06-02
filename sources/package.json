@@ -10,13 +10,14 @@
     "ws": "1.1.4"
   },
   "engines": {
-    "node": "0.10.x"
+    "node": "6.x"
   },
   "scripts": {
     "transpile": "tsc --module commonjs --noImplicitAny --target es6 ./*.ts",
     "start": "node app.js"
   },
   "devDependencies": {
+    "@types/node": "^6.0.112",
     "typescript": "2.6.2"
   }
 }

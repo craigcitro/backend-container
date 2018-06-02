@@ -12,7 +12,6 @@
  * the License.
  */
 
-/// <reference path="./externs/node.d.ts" />
 /// <reference path="./externs/bunyan.d.ts" />
 /// <reference path="./externs/mkdirp.d.ts" />
 /// <reference path="common.d.ts" />

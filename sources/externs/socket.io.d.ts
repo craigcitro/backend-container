@@ -3,8 +3,6 @@
 // Definitions by: PROGRE <https://github.com/progre/>, Damian Connolly <https://github.com/divillysausages/>
 // Definitions: https://github.com/borisyankov/DefinitelyTyped
 
-/// <reference path='./node.d.ts' />
-
 declare module 'socket.io' {
 	var server: SocketIOStatic;
 
@@ -422,12 +420,12 @@ declare module SocketIO {
 		 * @param listener A listener that should take one parameter of type Socket
 		 * @return This Namespace
 		 */
-		on( event: 'connection', listener: ( socket: Socket ) => void ): Namespace;
+		on( event: 'connection', listener: ( socket: Socket ) => void ): this;
 
 		/**
 		 * @see on( 'connection', listener )
 		 */
-		on( event: 'connect', listener: ( socket: Socket ) => void ): Namespace;
+		on( event: 'connect', listener: ( socket: Socket ) => void ): this;
 
 		/**
 		 * Base 'on' method to add a listener for an event
@@ -436,7 +434,7 @@ declare module SocketIO {
 		 * for the callback depend on the event
 		 * @ This Namespace
 		 */
-		on( event: string, listener: Function ): Namespace;
+		on( event: string, listener: Function ): this;
 	}
 
 	/**

@@ -12,7 +12,6 @@
  * the License.
  */
 
-/// <reference path="./externs/node.d.ts" />
 /// <reference path="common.d.ts" />
 
 import fs = require('fs');
@@ -30,7 +29,7 @@ import wsHttpProxy = require('./wsHttpProxy');
 import childProcess = require('child_process');
 
 var server: http.Server;
-var staticHandler: http.RequestHandler;
+var staticHandler: Function;
 
 /**
  * The application settings instance.
