@@ -12,8 +12,7 @@
  * the License.
  */
 
-/// <reference path="../../../third_party/externs/ts/node/node.d.ts" />
-/// <reference path="../../../third_party/externs/ts/node/node-http-proxy.d.ts" />
+/// <reference path="./externs/node-http-proxy.d.ts" />
 /// <reference path="common.d.ts" />
 
 import fs = require('fs');
@@ -111,7 +110,7 @@ function requestHandler(request: http.ServerRequest, response: http.ServerRespon
  * @param settings configuration settings for the application.
  * @returns the request handler to handle static requests.
  */
-export function createHandler(settings: common.AppSettings): http.RequestHandler {
+export function createHandler(settings: common.AppSettings): Function {
   appSettings = settings;
   return requestHandler;
 }

@@ -12,8 +12,6 @@
  * the License.
  */
 
-/// <reference path="../../../third_party/externs/ts/node/node.d.ts" />
-/// <reference path="../../../third_party/externs/ts/request/request.d.ts" />
 /// <reference path="common.d.ts" />
 
 import fs = require('fs');
@@ -22,7 +20,6 @@ import jupyter = require('./jupyter');
 import logging = require('./logging');
 import net = require('net');
 import path = require('path');
-import request = require('request');
 import reverseProxy = require('./reverseProxy');
 import settings_ = require('./settings');
 import sockets = require('./sockets');
@@ -32,7 +29,7 @@ import wsHttpProxy = require('./wsHttpProxy');
 import childProcess = require('child_process');
 
 var server: http.Server;
-var staticHandler: http.RequestHandler;
+var staticHandler: Function;
 
 /**
  * The application settings instance.

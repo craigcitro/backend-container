@@ -12,9 +12,8 @@
  * the License.
  */
 
-/// <reference path="../../../third_party/externs/ts/node/node.d.ts" />
-/// <reference path="../../../third_party/externs/ts/node/bunyan.d.ts" />
-/// <reference path="../../../third_party/externs/ts/node/mkdirp.d.ts" />
+/// <reference path="./externs/bunyan.d.ts" />
+/// <reference path="./externs/mkdirp.d.ts" />
 /// <reference path="common.d.ts" />
 
 import bunyan = require('bunyan');

@@ -12,8 +12,6 @@
  * the License.
  */
 
-/// <reference path="./node.d.ts" />
-
 declare module 'http-proxy' {
   import events = require('events');
   import http = require('http');

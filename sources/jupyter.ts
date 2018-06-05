@@ -12,9 +12,8 @@
  * the License.
  */
 
-/// <reference path="../../../third_party/externs/ts/node/node.d.ts" />
-/// <reference path="../../../third_party/externs/ts/node/node-http-proxy.d.ts" />
-/// <reference path="../../../third_party/externs/ts/node/tcp-port-used.d.ts" />
+/// <reference path="./externs/node-http-proxy.d.ts" />
+/// <reference path="./externs/tcp-port-used.d.ts" />
 /// <reference path="common.d.ts" />
 
 import callbacks = require('./callbacks');
@@ -27,6 +26,7 @@ import net = require('net');
 import path = require('path');
 import settings = require('./settings');
 import tcp = require('tcp-port-used');
+import util = require('./util');
 
 interface JupyterServer {
   port: number;
@@ -229,9 +229,10 @@ export function handleRequest(request: http.ServerRequest, response: http.Server
 
 function responseHandler(proxyResponse: http.ClientResponse,
                          request: http.ServerRequest, response: http.ServerResponse) {
+    var origin: string = util.headerAsString(request.headers.origin);
   if (appSettings.allowOriginOverrides.length &&
-      appSettings.allowOriginOverrides.indexOf(request.headers['origin']) != -1) {
-    proxyResponse.headers['access-control-allow-origin'] = request.headers['origin'];
+      appSettings.allowOriginOverrides.indexOf(origin) != -1) {
+    proxyResponse.headers['access-control-allow-origin'] = origin;
     proxyResponse.headers['access-control-allow-credentials'] = 'true';
   } else if (proxyResponse.headers['access-control-allow-origin'] !== undefined) {
     // Delete the allow-origin = * header that is sent (likely as a result of a workaround

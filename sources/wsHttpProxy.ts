@@ -12,12 +12,12 @@
  * the License.
  */
 
- /// <reference path="../../../third_party/externs/ts/node/node-ws.d.ts" />
- /// <reference path="../../../third_party/externs/ts/node/node.d.ts" />
+/// <reference path="./externs/node-ws.d.ts" />
 
 import * as WebSocket from 'ws';
 import * as http from 'http';
 import * as logging from './logging';
+import * as util from './util';
 
 /**
  * Proxies HTTP requests over websockets.
@@ -47,7 +47,7 @@ export class WsHttpProxy {
     wss.on('connection', (client: WebSocket) => {
       // Since web sockets are allowed cross-origin and cross protocol (http/https), need to be
       // strict about only allowing whitelisted origins.
-      const origin = client.upgradeReq.headers.origin;
+      const origin = util.headerAsString(client.upgradeReq.headers.origin);
       if (allowedOrigins.indexOf(origin) == -1) {
         logging.getLogger().error('WebSocket origin not in allowedOrigins "%s"', origin);
         client.close();

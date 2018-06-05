@@ -12,8 +12,7 @@
  * the License.
  */
 
-/// <reference path="../../../third_party/externs/ts/node/node.d.ts" />
-/// <reference path="../../../third_party/externs/ts/node/node-http-proxy.d.ts" />
+/// <reference path="./externs/node-http-proxy.d.ts" />
 /// <reference path="common.d.ts" />
 
 
@@ -21,6 +20,7 @@ import http = require('http');
 import httpProxy = require('http-proxy');
 import logging = require('./logging');
 import url = require('url');
+import util = require('./util');
 
 var appSettings: common.AppSettings;
 var proxy: httpProxy.ProxyServer = httpProxy.createProxyServer(null);
@@ -43,19 +43,12 @@ function getPort(url: string) {
 }
 
 /**
- * Returns true iff the request should be served by the reverse proxy.
- */
-export function isReverseProxyRequest(request: http.ServerRequest) {
-  var urlpath = url.parse(request.url, true).pathname;
-  return !!getRequestPort(request, urlpath);
-}
-
-/**
  * Get port from request. If the request should be handled by reverse proxy, returns
  * the port as a string. Othewise, returns null.
  */
 export function getRequestPort(request: http.ServerRequest, path: string): string {
-  var port: string = getPort(path) || getPort(request.headers.referer);
+  var referer: string = util.headerAsString(request.headers.referer);
+  var port: string = getPort(path) || getPort(referer);
   if (!port) {
     if (path.indexOf('/socket.io/') == 0) {
       port = socketioPort;
