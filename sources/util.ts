@@ -14,8 +14,10 @@
 
 import http = require('http');
 
-export function headerAsString(header: string | string[]): string {
-    if (typeof header == 'string') {
+export function headerAsString(header?: string | string[]): string {
+    if (!header) {
+        return '';
+    } else if (typeof header == 'string') {
         return header;
     } else {
         return header.join();
