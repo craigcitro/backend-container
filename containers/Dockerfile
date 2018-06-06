@@ -142,7 +142,7 @@ RUN apt-get update && \
 
 # Build a copy of the datalab node app.
     mkdir -p /datalab/web && \
-    cd /backend-container/sources/web/datalab && \
+    cd /backend-container/sources && \
     /tools/node/bin/npm install && \
     /tools/node/bin/npm run transpile -- --outDir /datalab/web && \
     cp -a config package.json /datalab/web && \

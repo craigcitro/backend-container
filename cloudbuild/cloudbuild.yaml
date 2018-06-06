@@ -10,7 +10,6 @@ steps:
     - |
       apt-get -qq update
       apt-get -qq install unzip
-      unzip upstream.zip
       unzip colabtools.zip
 - id: "build"
   name: 'gcr.io/cloud-builders/docker'
