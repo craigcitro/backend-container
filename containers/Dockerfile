@@ -155,9 +155,15 @@ RUN apt-get update && \
     /tools/node/bin/npm install && \
     cd / && \
 
-# Install colabtools.
+# Install colabtools. We also run `tox` to confirm that we're not packaging a
+# version which doesn't work with the python versions on the container. tox is
+# configured via: https://github.com/googlecolab/colabtools/blob/master/tox.ini
     cp -a /backend-container/colabtools /colabtools && \
     cd /colabtools && \
+# tox maintains its own virtualenvs, so doesn't need both py2 and py3 installs.
+    python3 -m pip install tox && \
+    tox && \
+    python2 -m pip uninstall -y tox && \
     python setup.py sdist && \
     python3 -m pip install /colabtools/dist/google-colab-0.0.1a1.tar.gz && \
     python2 -m pip install /colabtools/dist/google-colab-0.0.1a1.tar.gz && \
