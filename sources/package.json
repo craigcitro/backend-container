@@ -13,7 +13,7 @@
     "node": "6.x"
   },
   "scripts": {
-    "transpile": "tsc --module commonjs --noImplicitAny --target es6 ./*.ts",
+    "transpile": "./node_modules/typescript/bin/tsc --module commonjs --noImplicitAny --target es6 ./*.ts",
     "start": "node app.js"
   },
   "devDependencies": {
