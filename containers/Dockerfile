@@ -104,12 +104,10 @@ RUN apt-get update && \
 # Add a global pip.conf to avoid warnings on `pip list` and friends.
     cp /backend-container/containers/pip.conf /etc/ && \
 
-# Setup Python packages. One package isn't available from PyPA, so we
-# install it manually to save on install time.
+# Setup Python packages.
 #
 # Order is important here: we always do the python3 variants *before* the
 # python2 ones, so that installed scripts still default to python2.
-    python2 -m pip install -U http://wheels.scipy.org/subprocess32-3.5.0-cp27-cp27mu-manylinux1_x86_64.whl && \
     python3 -m pip install -U --upgrade-strategy only-if-needed --no-cache-dir \
         -r /backend-container/containers/requirements.txt && \
     python2 -m pip install -U --upgrade-strategy only-if-needed --no-cache-dir \
