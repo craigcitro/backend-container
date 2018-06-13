@@ -42,6 +42,12 @@ interface DataMessage {
 
 var sessionCounter = 0;
 
+
+/**
+ * The application settings instance.
+ */
+let appSettings: common.AppSettings;
+
 /**
  * Creates a WebSocket connected to the Jupyter server for the URL in the specified session.
  */
@@ -128,6 +134,10 @@ function socketHandler(socket: SocketIO.Socket) {
 
     try {
       var port = jupyter.getPort(socket.request)
+      if (appSettings.kernelManagerProxyPort) {
+        port = appSettings.kernelManagerProxyPort;
+        logging.getLogger().debug('Using kernel manager proxy port %d', port);
+      }
       session.url = message.url;
       session.webSocket = createWebSocket(port, session);
     }
@@ -163,6 +173,7 @@ function socketHandler(socket: SocketIO.Socket) {
 }
 
 export function init(settings: common.AppSettings): void {
+  appSettings = settings;
   var io = socketio(String(settings.socketioPort), {
     path: path_.join(settings.datalabBasePath, 'socket.io'),
     transports: [ 'polling' ],

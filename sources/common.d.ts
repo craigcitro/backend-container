@@ -88,6 +88,12 @@ declare module common {
      * If true, allow HTTP requests via websockets.
      */
     allowHttpOverWebsocket: boolean;
+
+    /**
+     * The port to use to proxy kernel manager websocket requests. A value of 0
+     * disables proxying.
+     */
+    kernelManagerProxyPort: number;
   }
 
   interface Map<T> {
