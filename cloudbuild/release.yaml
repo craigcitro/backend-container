@@ -1,0 +1,14 @@
+substitutions:
+  _SOURCE_TAG: ''
+  _DESTINATION_TAG: ''
+steps:
+- id: 'fetch'
+  name: 'gcr.io/cloud-builders/docker'
+  args: ['pull', 'gcr.io/colab-datalab/datalab:${_SOURCE_TAG}']
+- id: 'tag'
+  name: 'gcr.io/cloud-builders/docker'
+  args: ['tag',
+         'gcr.io/colab-datalab/datalab:${_SOURCE_TAG}',
+         'gcr.io/colab-datalab/datalab:${_DESTINATION_TAG}']
+images:
+  - 'gcr.io/colab-datalab/datalab:${_DESTINATION_TAG}'
