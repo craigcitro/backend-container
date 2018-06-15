@@ -2,7 +2,7 @@ PyYAML~=3.12
 # Because we enable altair's colab renderer in the ipython.py startup script,
 # we pin this to an exact version so that colab startup can't be broken by
 # external package updates
-altair==2.0.1
+altair~=2.1.0
 beautifulsoup4~=4.6.0
 crcmod~=1.7
 future~=0.16.0
