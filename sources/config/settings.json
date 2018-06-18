@@ -29,7 +29,6 @@
   "logFilePath": "/var/log/app_engine/custom_logs/app.log",
   "logFilePeriod": "300000ms",
   "nextJupyterPort": 9000,
-  "proxyWebSockets": false,
   "serverPort": 8080,
   "socketioPort": 8084
 }
