@@ -19,7 +19,7 @@ MAINTAINER Google Colaboratory Team <colaboratory-team@google.com>
 EXPOSE 8080
 
 # Path configuration
-ENV PATH $PATH:/tools/node/bin:/tools/google-cloud-sdk/bin
+ENV PATH $PATH:/tools/node/bin:/tools/google-cloud-sdk/bin:/opt/bin
 ENV PYTHONPATH /env/python
 
 # We need to set the gcloud path before disabling the components check below.
@@ -57,6 +57,7 @@ RUN apt-get update && \
         libxml2-dev \
         libzmq5 \
         openssh-client \
+        p7zip-full \
         pkg-config \
         python \
         python-dev \

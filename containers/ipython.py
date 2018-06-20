@@ -37,8 +37,6 @@ finally:
 c.InteractiveShellApp.exec_lines = [
     'from google.colab import _shell_customizations',
     '_shell_customizations.initialize()',
-    # TODO(b/72409705): Remove this extra import.
-    'import h5py',
     ENABLE_ALTAIR,
 ]
 
