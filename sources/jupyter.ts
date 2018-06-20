@@ -77,13 +77,10 @@ function createJupyterServerAtPort(port: number, userDir: string) {
     jupyterServer = null;
   }
 
-  var secretPath = path.join(appSettings.datalabRoot, '/content/datalab/.config/notary_secret');
   var processArgs = appSettings.jupyterArgs.slice().concat([
     '--port=' + server.port,
     '--port-retries=0',
     '--notebook-dir="' + server.notebooks + '"',
-    '--NotebookNotary.algorithm=sha256',
-    '--NotebookNotary.secret_file=' + secretPath,
     '--NotebookApp.base_url=' + appSettings.datalabBasePath,
   ]);
 

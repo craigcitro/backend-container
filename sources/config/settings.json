@@ -20,7 +20,6 @@
     "--ContentsManager.untitled_directory=\"Untitled Folder\"",
     "--ContentsManager.untitled_file=\"Untitled File\"",
     "--ContentsManager.untitled_notebook=\"Untitled Notebook\"",
-    "--NotebookNotary.algorithm=\"sha1\"",
     "--KernelManager.autorestart=True",
     "--MultiKernelManager.default_kernel_name=\"python2\"",
     "--ip=\"127.0.0.1\""

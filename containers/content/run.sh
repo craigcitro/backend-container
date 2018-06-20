@@ -40,12 +40,5 @@ if [ -n "$T" ]; then
 fi
 cd /
 
-# Create the notebook notary secret if one does not already exist
-if [ ! -f /content/datalab/.config/notary_secret ]
-then
-  mkdir -p /content/datalab/.config
-  openssl rand -base64 128 > /content/datalab/.config/notary_secret
-fi
-
 # Start the DataLab server
 forever --minUptime 1000 --spinSleepTime 1000 /datalab/web/app.js
