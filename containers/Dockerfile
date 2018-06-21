@@ -149,7 +149,7 @@ RUN apt-get update && \
     /tools/node/bin/npm install -g forever && \
 
 # Add and install build artifacts
-    cp -a /backend-container/containers/content/* /datalab && \
+    cp /backend-container/containers/run.sh /datalab && \
     cd /datalab/web && \
     /tools/node/bin/npm install && \
     cd / && \
