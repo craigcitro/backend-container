@@ -1,7 +1,6 @@
 {
   "allowHttpOverWebsocket": false,
   "allowOriginOverrides": [],
-  "consoleLogging": true,
   "consoleLogLevel": "warn",
   "contentDir": "/content",
   "datalabRoot": "",
@@ -24,9 +23,6 @@
     "--MultiKernelManager.default_kernel_name=\"python2\"",
     "--ip=\"127.0.0.1\""
   ],
-  "logFileCount": 10,
-  "logFilePath": "/var/log/app_engine/custom_logs/app.log",
-  "logFilePeriod": "300000ms",
   "nextJupyterPort": 9000,
   "serverPort": 8080,
   "socketioPort": 8084

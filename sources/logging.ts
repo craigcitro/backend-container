@@ -13,14 +13,10 @@
  */
 
 /// <reference path="./externs/bunyan.d.ts" />
-/// <reference path="./externs/mkdirp.d.ts" />
 /// <reference path="common.d.ts" />
 
 import bunyan = require('bunyan');
-import fs = require('fs');
 import http = require('http');
-import mkdirp = require('mkdirp');
-import path = require('path');
 
 var logger: bunyan.ILogger = null;
 var requestLogger: bunyan.ILogger = null;
@@ -61,19 +57,9 @@ export function logJupyterOutput(text: string, error: boolean): void {
  * Initializes loggers used within the application.
  */
 export function initializeLoggers(settings: common.AppSettings): void {
-  // Ensure the directory containing logs exists (as bunyan doesn't create the directory itself).
-  var logFilePath = path.join(settings.datalabRoot, settings.logFilePath);
-  mkdirp.sync(path.dirname(logFilePath));
-
-  var streams: bunyan.LogStream[] = [
-    { level: 'info', type: 'rotating-file',
-      path: logFilePath, period: settings.logFilePeriod, count: settings.logFileCount }
-  ];
-  if (settings.consoleLogging) {
-    streams.push({ level: settings.consoleLogLevel, type: 'stream', stream: process.stderr });
-  }
-
-  logger = bunyan.createLogger({ name: 'app', streams: streams });
+  logger = bunyan.createLogger({ name: 'app', streams: [
+      { level: settings.consoleLogLevel, type: 'stream', stream: process.stderr },
+  ]});
   requestLogger = logger.child({ type: 'request' });
   jupyterLogger = logger.child({ type: 'jupyter' });
 }
