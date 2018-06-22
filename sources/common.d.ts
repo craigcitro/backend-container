@@ -17,13 +17,6 @@ declare module common {
   interface AppSettings {
 
     /**
-     * The minimum threshold for log statements to be written to stderr.
-     * Values should be one of 'trace', 'debug', 'info',
-     * 'warn', 'error', or 'fatal'.
-     */
-    consoleLogLevel: string;
-
-    /**
      * The port that the server should listen to.
      */
     serverPort: number;

@@ -58,7 +58,7 @@ export function logJupyterOutput(text: string, error: boolean): void {
  */
 export function initializeLoggers(settings: common.AppSettings): void {
   logger = bunyan.createLogger({ name: 'app', streams: [
-      { level: settings.consoleLogLevel, type: 'stream', stream: process.stderr },
+      { level: 'debug', type: 'stream', stream: process.stderr },
   ]});
   requestLogger = logger.child({ type: 'request' });
   jupyterLogger = logger.child({ type: 'jupyter' });

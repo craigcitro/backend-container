@@ -1,7 +1,6 @@
 {
   "allowHttpOverWebsocket": false,
   "allowOriginOverrides": [],
-  "consoleLogLevel": "warn",
   "contentDir": "/content",
   "datalabRoot": "",
   "jupyterArgs": [
