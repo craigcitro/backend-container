@@ -12,20 +12,16 @@
  * the License.
  */
 
-/// <reference path="./externs/node-http-proxy.d.ts" />
-/// <reference path="common.d.ts" />
+import * as http from 'http';
+import * as httpProxy from 'http-proxy';
 
+import {AppSettings} from './appSettings';
+import * as util from './util';
 
-import http = require('http');
-import httpProxy = require('http-proxy');
-import logging = require('./logging');
-import url = require('url');
-import util = require('./util');
-
-var appSettings: common.AppSettings;
-var proxy: httpProxy.ProxyServer = httpProxy.createProxyServer(null);
-var regex: any = new RegExp('\/_proxy\/([0-9]+)($|\/)');
-var socketioPort: string = '';
+let appSettings: AppSettings;
+const proxy: httpProxy.ProxyServer = httpProxy.createProxyServer(null);
+const regex = new RegExp('\/_proxy\/([0-9]+)($|\/)');
+let socketioPort = '';
 
 function errorHandler(error: Error, request: http.ServerRequest, response: http.ServerResponse) {
   response.writeHead(500, 'Reverse Proxy Error.');
@@ -78,9 +74,8 @@ export function handleRequest(request: http.ServerRequest,
 /**
  * Initialize the handler.
  */
-export function init(settings: common.AppSettings) {
+export function init(settings: AppSettings) {
   appSettings = settings;
   socketioPort = String(settings.socketioPort);
   proxy.on('error', errorHandler);
 }
-

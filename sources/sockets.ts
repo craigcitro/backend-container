@@ -12,17 +12,14 @@
  * the License.
  */
 
-/// <reference path="./externs/node-ws.d.ts" />
-/// <reference path="common.d.ts" />
+import * as path_ from 'path';
+import * as socketio from 'socket.io';
+import * as url from 'url';
+import * as WebSocket from 'ws';
 
-import http = require('http');
-import jupyter = require('./jupyter');
-import logging = require('./logging');
-import path_ = require('path');
-import socketio = require('socket.io');
-import url = require('url');
-import util = require('util');
-import WebSocket = require('ws');
+import {AppSettings} from './appSettings';
+import * as jupyter from './jupyter';
+import * as logging from './logging';
 
 interface Session {
   id: number;
@@ -46,7 +43,7 @@ var sessionCounter = 0;
 /**
  * The application settings instance.
  */
-let appSettings: common.AppSettings;
+let appSettings: AppSettings;
 
 /**
  * Creates a WebSocket connected to the Jupyter server for the URL in the specified session.
@@ -172,7 +169,7 @@ function socketHandler(socket: SocketIO.Socket) {
   });
 }
 
-export function init(settings: common.AppSettings): void {
+export function init(settings: AppSettings): void {
   appSettings = settings;
   var io = socketio(String(settings.socketioPort), {
     path: path_.join(settings.datalabBasePath, 'socket.io'),

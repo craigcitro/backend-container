@@ -12,18 +12,16 @@
  * the License.
  */
 
-/// <reference path="./externs/node-http-proxy.d.ts" />
-/// <reference path="common.d.ts" />
+import * as fs from 'fs';
+import * as http from 'http';
+import * as path from 'path';
+import * as url from 'url';
 
-import fs = require('fs');
-import http = require('http');
-import logging = require('./logging');
-import path = require('path');
-import settings = require('./settings');
-import url = require('url');
+import {AppSettings} from './appSettings';
+import * as logging from './logging';
 
-var appSettings: common.AppSettings;
-var CONTENT_TYPES: common.Map<string> = {
+let appSettings: AppSettings;
+const CONTENT_TYPES: {[key: string]: string} = {
   '.js': 'text/javascript',
   '.css': 'text/css',
   '.png': 'image/png',
@@ -33,7 +31,7 @@ var CONTENT_TYPES: common.Map<string> = {
   '.html': 'text/html'
 };
 
-var contentCache: common.Map<Buffer> = {};
+const contentCache: {[key: string]: Buffer} = {};
 
 // Path to use for fetching static resources provided by Jupyter.
 function jupyterDir(): string {
@@ -41,7 +39,8 @@ function jupyterDir(): string {
   return path.join(prefix, '/dist-packages/notebook')
 }
 
-function getContent(filePath: string, cb: common.Callback<Buffer>): void {
+function getContent(
+    filePath: string, cb: (e: Error, result: Buffer) => void): void {
   var content = contentCache[filePath];
   if (content != null) {
     process.nextTick(function() {
@@ -110,7 +109,7 @@ function requestHandler(request: http.ServerRequest, response: http.ServerRespon
  * @param settings configuration settings for the application.
  * @returns the request handler to handle static requests.
  */
-export function createHandler(settings: common.AppSettings): Function {
+export function createHandler(settings: AppSettings): Function {
   appSettings = settings;
   return requestHandler;
 }

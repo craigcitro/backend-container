@@ -12,21 +12,18 @@
  * the License.
  */
 
-/// <reference path="./externs/node-http-proxy.d.ts" />
-/// <reference path="./externs/tcp-port-used.d.ts" />
-/// <reference path="common.d.ts" />
+import * as childProcess from 'child_process';
+import * as fs from 'fs';
+import * as http from 'http';
+import * as httpProxy from 'http-proxy';
+import * as net from 'net';
+import * as tcp from 'tcp-port-used';
 
-import callbacks = require('./callbacks');
-import childProcess = require('child_process');
-import fs = require('fs');
-import http = require('http');
-import httpProxy = require('http-proxy');
-import logging = require('./logging');
-import net = require('net');
-import path = require('path');
-import settings = require('./settings');
-import tcp = require('tcp-port-used');
-import util = require('./util');
+import {AppSettings} from './appSettings';
+import * as callbacks from './callbacks';
+import * as logging from './logging';
+import * as settings from './settings';
+import * as util from './util';
 
 interface JupyterServer {
   port: number;
@@ -49,7 +46,7 @@ var callbackManager: callbacks.CallbackManager = new callbacks.CallbackManager()
 /**
  * The application settings instance.
  */
-var appSettings: common.AppSettings;
+let appSettings: AppSettings;
 
 function pipeOutput(stream: NodeJS.ReadableStream, port: number, error: boolean) {
   stream.setEncoding('utf8');
@@ -158,7 +155,7 @@ export function getPort(request: http.ServerRequest): number {
 /**
  * Starts a jupyter server instance.
  */
-export function start(cb: common.Callback0) {
+export function start(cb: (e: Error) => void) {
   if (jupyterServer) {
     process.nextTick(function() { cb(null); });
     return;
@@ -183,7 +180,7 @@ export function start(cb: common.Callback0) {
 /**
  * Initializes the Jupyter server manager.
  */
-export function init(settings: common.AppSettings): void {
+export function init(settings: AppSettings): void {
   appSettings = settings;
 }
 

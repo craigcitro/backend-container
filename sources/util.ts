@@ -12,8 +12,6 @@
  * the License.
  */
 
-import http = require('http');
-
 export function headerAsString(header?: string | string[]): string {
     if (!header) {
         return '';

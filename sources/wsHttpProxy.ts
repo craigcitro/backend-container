@@ -12,8 +12,6 @@
  * the License.
  */
 
-/// <reference path="./externs/node-ws.d.ts" />
-
 import * as WebSocket from 'ws';
 import * as http from 'http';
 import * as logging from './logging';

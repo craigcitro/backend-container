@@ -12,13 +12,12 @@
  * the License.
  */
 
-/// <reference path="common.d.ts" />
-
-import logging = require('./logging');
+export interface Callback0 {
+  (e: Error): void;
+}
 
 export class CallbackManager {
-
-  _allCallbacks: common.Callback0[] = [];
+  _allCallbacks: Callback0[] = [];
 
   /**
    * Register a callback which will be invoked when invokeAllCallbacks is called.
@@ -27,7 +26,7 @@ export class CallbackManager {
    * already parked the callback, it should return and when the ongoing request is done,
    * the caller's callback will be invoked.
    */
-  checkOngoingAndRegisterCallback(cb: common.Callback0): boolean {
+  checkOngoingAndRegisterCallback(cb: Callback0): boolean {
     this._allCallbacks.push(cb);
     return (this._allCallbacks.length == 1);
   }

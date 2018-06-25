@@ -12,11 +12,8 @@
  * the License.
  */
 
-/// <reference path="./externs/bunyan.d.ts" />
-/// <reference path="common.d.ts" />
-
-import bunyan = require('bunyan');
-import http = require('http');
+import * as bunyan from 'bunyan';
+import * as http from 'http';
 
 var logger: bunyan.ILogger = null;
 var requestLogger: bunyan.ILogger = null;
@@ -56,7 +53,7 @@ export function logJupyterOutput(text: string, error: boolean): void {
 /**
  * Initializes loggers used within the application.
  */
-export function initializeLoggers(settings: common.AppSettings): void {
+export function initializeLoggers(): void {
   logger = bunyan.createLogger({ name: 'app', streams: [
       { level: 'debug', type: 'stream', stream: process.stderr },
   ]});

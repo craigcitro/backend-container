@@ -11,20 +11,17 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-
-/// <reference path="common.d.ts" />
-
-import logging = require('./logging');
-import settings = require('./settings');
-import server = require('./server');
+import * as logging from './logging';
+import * as server from './server';
+import * as settings from './settings';
 
 /**
  * Load the configuration settings, and then start the server, which
  * runs indefinitely, listening to and processing incoming HTTP requests.
  */
-var appSettings = settings.loadAppSettings();
+const appSettings = settings.loadAppSettings();
 if (appSettings != null) {
-  logging.initializeLoggers(appSettings);
+  logging.initializeLoggers();
   server.run(appSettings);
 }
 

@@ -12,22 +12,23 @@
  * the License.
  */
 
-/// <reference path="common.d.ts" />
+import * as fs from 'fs';
+import * as path from 'path';
+import * as util from 'util';
 
-import fs = require('fs');
-import path = require('path');
-import util = require('util');
-import logging = require('./logging');
+import {AppSettings} from './appSettings';
+import * as logging from './logging';
 
-var SETTINGS_FILE = 'settings.json';
-var BASE_PATH_FILE = 'basePath.json';
+const SETTINGS_FILE = 'settings.json';
+const BASE_PATH_FILE = 'basePath.json';
 
 /**
  * Loads the configuration settings for the application to use.
- * On first run, this generates any dynamic settings and merges them into the settings result.
+ * On first run, this generates any dynamic settings and merges them into the
+ * settings result.
  * @returns the settings object for the application to use.
  */
-export function loadAppSettings(): common.AppSettings {
+export function loadAppSettings(): AppSettings {
   var settingsPath = path.join(__dirname, 'config', SETTINGS_FILE);
   var basePathFile = path.join(__dirname, 'config', BASE_PATH_FILE);
 
@@ -37,7 +38,9 @@ export function loadAppSettings(): common.AppSettings {
   }
 
   try {
-    const settings = <common.AppSettings>JSON.parse(fs.readFileSync(settingsPath, 'utf8') || '{}');
+    const settings =
+        JSON.parse(fs.readFileSync(settingsPath, 'utf8') || '{}') as
+        AppSettings;
     if (!fs.existsSync(basePathFile)) {
       _log('Base path setting file not found, falling back to empty path.');
       settings.datalabBasePath = '';
@@ -61,8 +64,7 @@ export function loadAppSettings(): common.AppSettings {
       settings.datalabBasePath = settings.datalabBasePath + "/";
     }
     return settings;
-  }
-  catch (e) {
+  } catch (e) {
     _logError(e);
     return null;
   }

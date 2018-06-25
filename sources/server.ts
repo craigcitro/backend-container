@@ -12,29 +12,25 @@
  * the License.
  */
 
-/// <reference path="common.d.ts" />
+import * as http from 'http';
+import * as net from 'net';
+import * as url from 'url';
 
-import fs = require('fs');
-import http = require('http');
-import jupyter = require('./jupyter');
-import logging = require('./logging');
-import net = require('net');
-import path = require('path');
-import reverseProxy = require('./reverseProxy');
-import settings_ = require('./settings');
-import sockets = require('./sockets');
-import static_ = require('./static');
-import url = require('url');
-import wsHttpProxy = require('./wsHttpProxy');
-import childProcess = require('child_process');
+import {AppSettings} from './appSettings';
+import * as jupyter from './jupyter';
+import * as logging from './logging';
+import * as reverseProxy from './reverseProxy';
+import * as sockets from './sockets';
+import * as static_ from './static';
+import * as wsHttpProxy from './wsHttpProxy';
 
-var server: http.Server;
-var staticHandler: Function;
+let server: http.Server;
+let staticHandler: Function;
 
 /**
  * The application settings instance.
  */
-var appSettings: common.AppSettings;
+let appSettings: AppSettings;
 
 /**
  * If it is the user's first request since the web server restarts,
@@ -93,7 +89,7 @@ function handleRequest(request: http.ServerRequest,
     response.end(appSettings.datalabBasePath);
     return;
   }
-  
+
   // Requests proxied to Jupyter
   if ((requestPath == '/') ||
       (requestPath.indexOf('/api') == 0) ||
@@ -132,7 +128,7 @@ function uncheckedRequestHandler(request: http.ServerRequest, response: http.Ser
   logging.logRequest(request, response);
 
   var reverseProxyPort: string = reverseProxy.getRequestPort(request, urlpath);
-    
+
   if (reverseProxyPort) {
     reverseProxy.handleRequest(request, response, reverseProxyPort);
   } else if (urlpath.indexOf('/static') == 0) {
@@ -182,7 +178,7 @@ function requestHandler(request: http.ServerRequest, response: http.ServerRespon
  * Runs the proxy web server.
  * @param settings the configuration settings to use.
  */
-export function run(settings: common.AppSettings): void {
+export function run(settings: AppSettings): void {
   appSettings = settings;
   jupyter.init(settings);
   reverseProxy.init(settings);
