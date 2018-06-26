@@ -71,4 +71,10 @@ export declare interface AppSettings {
    * disables proxying.
    */
   kernelManagerProxyPort: number;
+
+  /**
+   * The hostname (or IP) to use to proxy kernel manager websocket requests.
+   * An empty value uses localhost.
+   */
+  kernelManagerProxyHost: string;
 }

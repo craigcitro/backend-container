@@ -48,8 +48,9 @@ let appSettings: AppSettings;
 /**
  * Creates a WebSocket connected to the Jupyter server for the URL in the specified session.
  */
-function createWebSocket(port: number, session: Session): WebSocket {
-  var socketUrl = 'ws://localhost:' + port + url.parse(session.url).path;
+function createWebSocket(socketHost: string, port: number, session: Session): WebSocket {
+  const path = url.parse(session.url).path;
+  const socketUrl = `ws://${socketHost}:${port}${path}`;
   logging.getLogger().debug('Creating WebSocket to %s for session %d', socketUrl, session.id);
 
   var ws = new WebSocket(socketUrl);
@@ -135,8 +136,12 @@ function socketHandler(socket: SocketIO.Socket) {
         port = appSettings.kernelManagerProxyPort;
         logging.getLogger().debug('Using kernel manager proxy port %d', port);
       }
+      let host = 'localhost';
+      if (appSettings.kernelManagerProxyHost) {
+        host = appSettings.kernelManagerProxyHost;
+      }
       session.url = message.url;
-      session.webSocket = createWebSocket(port, session);
+      session.webSocket = createWebSocket(host, port, session);
     }
     catch (e) {
       logging.getLogger().error(e, 'Unable to create WebSocket connection to %s', message.url);
