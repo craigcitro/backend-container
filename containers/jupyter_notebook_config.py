@@ -17,3 +17,4 @@ c = get_config()
 # TODO(b/109975537): Migrate allow_root to sources/config/settings.json.
 c.NotebookApp.allow_root = True
 c.NotebookApp.disable_check_xsrf = True
+c.NotebookApp.ip = '*'
