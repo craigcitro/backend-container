@@ -167,6 +167,9 @@ RUN apt-get update && \
     python3 -m pip install /colabtools/dist/google-colab-0.0.1a1.tar.gz && \
     python2 -m pip install /colabtools/dist/google-colab-0.0.1a1.tar.gz && \
     jupyter nbextension install --py google.colab && \
+# We also tweak the Jupyter kernelspecs, which needs to happen after our
+# datalab node app is configured.
+    python3 /backend-container/containers/update_kernelspecs.py && \
 
 # Set up our pip/python aliases. We just copy the same file to two places
 # rather than play games with symlinks. Note that /usr/local/bin/pip will be
