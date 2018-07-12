@@ -81,6 +81,18 @@ function createJupyterServerAtPort(port: number, userDir: string) {
     '--NotebookApp.base_url=' + appSettings.datalabBasePath,
   ]);
 
+  let jupyterServerAddr = 'localhost';
+  for (const flag of appSettings.jupyterArgs) {
+    // Extracts a string like '1.2.3.4' from the string '--ip="1.2.3.4"'
+    const match = flag.match(/--ip="([^"]+)"/);
+    if (match) {
+      jupyterServerAddr = match[1];
+      break;
+    }
+  }
+  logging.getLogger().info(
+      'Using jupyter server address %s', jupyterServerAddr);
+
   var notebookEnv: any = process.env;
   var processOptions = {
     detached: false,
@@ -98,23 +110,24 @@ function createJupyterServerAtPort(port: number, userDir: string) {
 
   // Create the proxy.
   var proxyOptions: httpProxy.ProxyServerOptions = {
-    target: 'http://localhost:' + port + appSettings.datalabBasePath
+    target: `http://${jupyterServerAddr}:${port}${appSettings.datalabBasePath}`
   };
 
   server.proxy = httpProxy.createProxyServer(proxyOptions);
   server.proxy.on('proxyRes', responseHandler);
   server.proxy.on('error', errorHandler);
 
-  tcp.waitUntilUsedOnHost(server.port, "localhost", 100, 15000).then(
-    function() {
-      jupyterServer = server;
-      logging.getLogger().info('Jupyter server started.');
-      callbackManager.invokeAllCallbacks(null);
-    },
-    function(e) {
-      logging.getLogger().error(e, 'Failed to start Jupyter server.');
-      callbackManager.invokeAllCallbacks(e);
-    });
+  tcp.waitUntilUsedOnHost(server.port, jupyterServerAddr, 100, 15000)
+      .then(
+          function() {
+            jupyterServer = server;
+            logging.getLogger().info('Jupyter server started.');
+            callbackManager.invokeAllCallbacks(null);
+          },
+          function(e) {
+            logging.getLogger().error(e, 'Failed to start Jupyter server.');
+            callbackManager.invokeAllCallbacks(e);
+          });
 }
 
 /**
