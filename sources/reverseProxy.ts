@@ -21,7 +21,6 @@ import * as util from './util';
 let appSettings: AppSettings;
 const proxy: httpProxy.ProxyServer = httpProxy.createProxyServer(null);
 const regex = new RegExp('\/_proxy\/([0-9]+)($|\/)');
-let socketioPort = '';
 
 function errorHandler(error: Error, request: http.ServerRequest, response: http.ServerResponse) {
   response.writeHead(500, 'Reverse Proxy Error.');
@@ -43,13 +42,8 @@ function getPort(url: string) {
  * the port as a string. Othewise, returns null.
  */
 export function getRequestPort(request: http.ServerRequest, path: string): string {
-  var referer: string = util.headerAsString(request.headers.referer);
-  var port: string = getPort(path) || getPort(referer);
-  if (!port) {
-    if (path.indexOf('/socket.io/') == 0) {
-      port = socketioPort;
-    }
-  }
+  const referer: string = util.headerAsString(request.headers.referer);
+  const port: string = getPort(path) || getPort(referer);
   return port;
 }
 
@@ -60,12 +54,8 @@ export function handleRequest(request: http.ServerRequest,
                               response: http.ServerResponse,
                               port: String) {
   request.url = request.url.replace(regex, '');
-  let target = 'http://localhost:' + port;
+  const target = 'http://localhost:' + port;
 
-  // Only web socket requests (through socket.io) need the basepath appended
-  if (request.url.indexOf('/socket.io/') === 0) {
-    target += appSettings.datalabBasePath;
-  }
   proxy.web(request, response, {
     target
   });
@@ -76,6 +66,5 @@ export function handleRequest(request: http.ServerRequest,
  */
 export function init(settings: AppSettings) {
   appSettings = settings;
-  socketioPort = String(settings.socketioPort);
   proxy.on('error', errorHandler);
 }

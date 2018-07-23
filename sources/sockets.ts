@@ -12,6 +12,7 @@
  * the License.
  */
 
+import * as http from 'http';
 import * as path_ from 'path';
 import * as socketio from 'socket.io';
 import * as url from 'url';
@@ -174,14 +175,16 @@ function socketHandler(socket: SocketIO.Socket) {
   });
 }
 
-export function init(settings: AppSettings): void {
+export function init(server: http.Server, settings: AppSettings): void {
   appSettings = settings;
-  var io = socketio(String(settings.socketioPort), {
-    path: path_.join(settings.datalabBasePath, 'socket.io'),
-    transports: [ 'polling' ],
-    allowUpgrades: false
-  });
+  const io = socketio(
+      server,
+      {path: '/socket.io', transports: ['polling'], allowUpgrades: false});
 
   io.of('/session')
     .on('connection', socketHandler);
+}
+
+export function isSocketIoPath(path: string): boolean {
+  return path.indexOf('/socket.io/') === 0;
 }

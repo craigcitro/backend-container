@@ -128,8 +128,9 @@ function uncheckedRequestHandler(request: http.ServerRequest, response: http.Ser
   logging.logRequest(request, response);
 
   var reverseProxyPort: string = reverseProxy.getRequestPort(request, urlpath);
-
-  if (reverseProxyPort) {
+  if (sockets.isSocketIoPath(urlpath)) {
+    // Will automatically be handled by socket.io.
+  } else if (reverseProxyPort) {
     reverseProxy.handleRequest(request, response, reverseProxyPort);
   } else if (urlpath.indexOf('/static') == 0) {
     staticHandler(request, response);
@@ -182,12 +183,13 @@ export function run(settings: AppSettings): void {
   appSettings = settings;
   jupyter.init(settings);
   reverseProxy.init(settings);
-  sockets.init(settings);
 
   staticHandler = static_.createHandler(settings);
 
   server = http.createServer(requestHandler);
   server.on('upgrade', socketHandler);
+
+  sockets.init(server, settings);
 
   if (settings.allowHttpOverWebsocket) {
     new wsHttpProxy.WsHttpProxy(server, httpOverWebSocketPath, settings.allowOriginOverrides);
