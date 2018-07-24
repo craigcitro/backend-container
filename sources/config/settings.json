@@ -20,7 +20,7 @@
     "--ContentsManager.untitled_notebook=\"Untitled Notebook\"",
     "--KernelManager.autorestart=True",
     "--MultiKernelManager.default_kernel_name=\"python2\"",
-    "--ip=\"127.0.0.1\""
+    "--ip=\"172.28.0.2\""
   ],
   "nextJupyterPort": 9000,
   "serverPort": 8080,
