@@ -128,11 +128,13 @@ RUN apt-get update && \
     mkdir -p /etc/ipython && \
     cp /backend-container/containers/ipython.py /etc/ipython/ipython_config.py && \
 
-# Setup Node.js using LTS 6.10
+# Setup Node.js using LTS 8.11.3 and NPM v5.7.1
     mkdir -p /tools/node && \
-    wget -nv https://nodejs.org/dist/v6.10.0/node-v6.10.0-linux-x64.tar.gz -O node.tar.gz && \
+    wget -nv https://nodejs.org/dist/v8.11.3/node-v8.11.3-linux-x64.tar.gz -O node.tar.gz && \
     tar xzf node.tar.gz -C /tools/node --strip-components=1 && \
     rm node.tar.gz && \
+# Remove once 'npm ci' is supported by the default npm version.
+    npm install -g npm@v5.7.1 && \
 
 # Set our locale to en_US.UTF-8.
     apt-get install -y locales && \
@@ -142,16 +144,16 @@ RUN apt-get update && \
 # Build a copy of the datalab node app.
     mkdir -p /datalab/web && \
     cd /backend-container/sources && \
-    /tools/node/bin/npm install && \
+    /tools/node/bin/npm ci && \
     /tools/node/bin/npm run transpile -- --outDir /datalab/web && \
-    cp -a config package.json /datalab/web && \
+    cp -a config package.json package-lock.json /datalab/web && \
     cd / && \
     /tools/node/bin/npm install -g forever && \
 
 # Add and install build artifacts
     cp /backend-container/containers/run.sh /datalab && \
     cd /datalab/web && \
-    /tools/node/bin/npm install && \
+    /tools/node/bin/npm ci && \
     cd / && \
 
 # Install colabtools. We also run `tox` to confirm that we're not packaging a
