@@ -177,9 +177,14 @@ function socketHandler(socket: SocketIO.Socket) {
 
 export function init(server: http.Server, settings: AppSettings): void {
   appSettings = settings;
-  const io = socketio(
-      server,
-      {path: '/socket.io', transports: ['polling'], allowUpgrades: false});
+  const io = socketio(server, {
+    path: '/socket.io',
+    transports: ['polling'],
+    allowUpgrades: false,
+    // v2.10 changed default from 60s to 5s, prefer the longer timeout to
+    // avoid errant disconnects.
+    pingTimeout: 60000,
+  });
 
   io.of('/session')
     .on('connection', socketHandler);
