@@ -65,6 +65,7 @@ RUN apt-get update && \
         python3 \
         python3-dev \
         python3-tk \
+        rename \
         rsync \
         ttf-liberation \
         unzip \
