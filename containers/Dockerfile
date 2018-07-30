@@ -31,6 +31,10 @@ COPY . /backend-container
 
 # Setup OS and core packages
 ENV DEBIAN_FRONTEND=noninteractive
+
+# We set this to avoid various encoding issues.
+ENV LANG en_US.UTF-8
+
 RUN apt-get update && \
     apt-get install --no-install-recommends -y -q \
         apt-utils \
@@ -140,8 +144,7 @@ RUN apt-get update && \
 # Set our locale to en_US.UTF-8.
     apt-get install -y locales && \
     locale-gen en_US.UTF-8 && \
-    update-locale LANG=en_US.UTF-8 && \
-
+    update-locale LANG=en_US.UTF-8 \
 # Build a copy of the datalab node app.
     mkdir -p /datalab/web && \
     cd /backend-container/sources && \
@@ -187,9 +190,6 @@ RUN apt-get update && \
     rm -rf /root/.cache/* && \
     rm -rf /tmp/* && \
     cd /
-
-# We set this to avoid various encoding issues.
-ENV LANG en_US.UTF-8
 
 # Startup
 ENV ENV /root/.bashrc
