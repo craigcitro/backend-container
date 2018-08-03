@@ -21,6 +21,7 @@ c.IPKernelApp.kernel_class = 'google.colab._kernel.Kernel'
 # Implicitly imported packages.
 c.InteractiveShellApp.extensions = [
     'google.cloud.bigquery',
+    'google.colab',
     'matplotlib',
     'seaborn',
 ]
@@ -35,8 +36,6 @@ finally:
 
 # Startup code.
 c.InteractiveShellApp.exec_lines = [
-    'from google.colab import _shell_customizations',
-    '_shell_customizations.initialize()',
     ENABLE_ALTAIR,
 ]
 
