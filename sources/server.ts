@@ -187,6 +187,9 @@ export function run(settings: AppSettings): void {
   staticHandler = static_.createHandler(settings);
 
   server = http.createServer(requestHandler);
+  // Disable HTTP keep-alive connection timeouts in order to avoid connection
+  // flakes. Details: b/112151064
+  server.keepAliveTimeout = 0;
   server.on('upgrade', socketHandler);
 
   sockets.init(server, settings);
