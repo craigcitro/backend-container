@@ -23,8 +23,7 @@ ENV PATH $PATH:/tools/node/bin:/tools/google-cloud-sdk/bin:/opt/bin
 ENV PYTHONPATH /env/python
 
 # We need to set the gcloud path before disabling the components check below.
-# TODO(b/70862907): Drop this custom gcloud directory.
-ENV CLOUDSDK_CONFIG /content/datalab/.config
+ENV CLOUDSDK_CONFIG /content/.config
 
 # We add the full repo contents (for building) and clean it up later.
 COPY . /backend-container
@@ -182,6 +181,19 @@ RUN apt-get update && \
 # overridden by a `pip` upgrade, so we keep this near the end of the Dockerfile.
     cp /backend-container/containers/pymultiplexer /usr/local/bin/pip && \
     cp /backend-container/containers/pymultiplexer /usr/local/bin/python && \
+
+# We want to include a few small datasets, so that a new user has a few files
+# to explore.
+    cp -a /backend-container/containers/sample_data /content/ && \
+    cd /content/sample_data && \
+    curl -OL https://dl.google.com/mlcc/mledu-datasets/california_housing_train.csv && \
+    curl -OL https://dl.google.com/mlcc/mledu-datasets/california_housing_test.csv && \
+    curl -OL https://dl.google.com/mlcc/mledu-datasets/mnist_train_small.csv && \
+    curl -OL https://dl.google.com/mlcc/mledu-datasets/mnist_test.csv && \
+
+# We also temporarily add one symlink.
+# TODO(b/70862907): Remove this line.
+    ln -s /content /content/datalab && \
 
 # Clean up
     apt-get autoremove -y && \
