@@ -25,7 +25,7 @@
 if ! pip freeze | grep '^tensorflow=='; then
  cd /
  T=""
- if [ -d /usr/lib64-nvidia ]; then
+ if [ -d /usr/lib64-nvidia ] || [[ "${COLAB_GPU:-}" == "1" ]]; then
    T="$(mktemp -d)"
    for f in tensorflow*whl; do
      ln -s "/gpu-${f}" "${T}/${f}"
