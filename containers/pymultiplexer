@@ -12,8 +12,10 @@
 # This is the default: assume python2.
 SUFFIX=2
 
-# We know *this* process isn't python, so we start with the parent.
-NEXT_PID=${PPID}
+# The loop below always starts by finding the *parent* of $NEXT_PID; we must
+# start with the current process, since the immediate parent may be the python
+# process we're looking for.
+NEXT_PID=$$
 
 while true; do
   # Determine where to look up the parent of this process (if it exists).
