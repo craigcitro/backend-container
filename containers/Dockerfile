@@ -172,7 +172,7 @@ RUN apt-get update && \
     python3 -m pip install /colabtools/dist/google-colab-0.0.1a1.tar.gz && \
     python2 -m pip install /colabtools/dist/google-colab-0.0.1a1.tar.gz && \
     jupyter nbextension install --py google.colab && \
-    jupyter serverextension enable --py google.colab._serverextension && \
+    jupyter serverextension enable --system --py google.colab._serverextension && \
 # We also tweak the Jupyter kernelspecs, which needs to happen after our
 # datalab node app is configured.
     python3 /backend-container/containers/update_kernelspecs.py && \
