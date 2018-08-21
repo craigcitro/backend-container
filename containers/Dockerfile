@@ -192,10 +192,6 @@ RUN apt-get update && \
     curl -OL https://dl.google.com/mlcc/mledu-datasets/mnist_train_small.csv && \
     curl -OL https://dl.google.com/mlcc/mledu-datasets/mnist_test.csv && \
 
-# We also temporarily add one symlink.
-# TODO(b/70862907): Remove this line.
-    ln -s /content /content/datalab && \
-
 # Clean up
     apt-get autoremove -y && \
     rm -rf /backend-container/ && \
