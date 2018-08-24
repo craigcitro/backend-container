@@ -19,7 +19,6 @@
     "--ContentsManager.untitled_file=\"Untitled File\"",
     "--ContentsManager.untitled_notebook=\"Untitled Notebook\"",
     "--KernelManager.autorestart=True",
-    "--MultiKernelManager.default_kernel_name=\"python2\"",
     "--ip=\"172.28.0.2\""
   ],
   "nextJupyterPort": 9000,
