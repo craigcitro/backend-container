@@ -21,4 +21,5 @@ c.NotebookApp.disable_check_xsrf = True
 c.ContentsManager.files_handler_class = (
     'google.colab._files_handler.ColabAuthenticatedFileHandler')
 
-c.MultiKernelManager.default_kernel_name = 'python3'
+# TODO(b/74388211): Set this back to python3.
+c.MultiKernelManager.default_kernel_name = 'python2'
