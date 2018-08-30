@@ -191,6 +191,10 @@ RUN apt-get update && \
     cp /backend-container/containers/pymultiplexer /usr/local/bin/pip && \
     cp /backend-container/containers/pymultiplexer /usr/local/bin/python && \
 
+# Stage the go/drive-fs binary for use by google.colab helpers.
+    mkdir -p /opt/google/drive && \
+    mv /backend-container/drive /backend-container/roots.pem /opt/google/drive/ && \
+
 # We want to include a few small datasets, so that a new user has a few files
 # to explore.
     cp -a /backend-container/containers/sample_data /content/ && \
