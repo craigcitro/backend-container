@@ -26,6 +26,7 @@ c.InteractiveShellApp.extensions = [
     'seaborn',
 ]
 
+# TODO(b/113339285): Consider converting to a Python import hook.
 ENABLE_ALTAIR = """
 import altair
 try:
