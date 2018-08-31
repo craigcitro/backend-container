@@ -131,11 +131,8 @@ RUN apt-get update && \
     python3 -m ipykernel install && python -m ipykernel install && \
 
 # Set up IPython configuration directories.
-    mkdir -p /etc/ipython/startup && \
+    mkdir -p /etc/ipython && \
     cp /backend-container/containers/ipython.py /etc/ipython/ipython_config.py && \
-    cp /backend-container/containers/ipython_startup_scripts/*.py /etc/ipython/startup/ && \
-
-
 
 # Setup Node.js using LTS 8.11.3 and NPM v5.7.1
     mkdir -p /tools/node && \
@@ -165,15 +162,13 @@ RUN apt-get update && \
     cd / && \
 
 # Run `tox` to confirm that we're not packaging code which doesn't work with
-# the python versions on the container. Tox configurations are configured via:
-# https://github.com/googlecolab/colabtools/blob/master/tox.ini and
-# https://github.com/googlecolab/backend-container/blob/master/containers/tox.ini.
+# the python versions on the container. Tox is configured via:
+# https://github.com/googlecolab/colabtools/blob/master/tox.ini.
     cp -a /backend-container/colabtools /colabtools && \
     cd /colabtools && \
 # tox maintains its own virtualenvs, so doesn't need both py2 and py3 installs.
     python3 -m pip install tox && \
     tox -c /colabtools/tox.ini && \
-    tox -c /backend-container/containers/tox.ini && \
     python3 -m pip uninstall -y tox && \
 # Install colabtools
     python setup.py sdist && \
