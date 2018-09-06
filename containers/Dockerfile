@@ -200,6 +200,9 @@ RUN apt-get update && \
     curl -OL https://dl.google.com/mlcc/mledu-datasets/mnist_train_small.csv && \
     curl -OL https://dl.google.com/mlcc/mledu-datasets/mnist_test.csv && \
 
+# Let GRTE find locales that are installed in standard (non-GRTE) locations.
+    mkdir -p /usr/grte/v4/lib64/ && ln -s /usr/lib/locale /usr/grte/v4/lib64/ && \
+
 # Clean up
     apt-get autoremove -y && \
     rm -rf /backend-container/ && \
