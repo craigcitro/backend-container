@@ -96,6 +96,7 @@ RUN apt-get update && \
     tools/google-cloud-sdk/bin/gcloud config set component_manager/disable_update_check true && \
 
 # Fetch tensorflow wheels.
+    cp /backend-container/containers/install_tf.sh / && \
     gsutil cp gs://colab-tensorflow/2018-08-27T00:53:14-07:00/*whl / && \
     for v in 2 3; do for f in /*tensorflow*-cp${v}*.whl; do pip${v} download -d /tf_deps $f; done; done && \
 
