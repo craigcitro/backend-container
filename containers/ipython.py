@@ -26,19 +26,8 @@ c.InteractiveShellApp.extensions = [
     'seaborn',
 ]
 
-# TODO(b/113339285): Consider converting to a Python import hook.
-ENABLE_ALTAIR = """
-import altair
-try:
-  altair.renderers.enable('colab')
-finally:
-  del altair
-"""
-
 # Startup code.
-c.InteractiveShellApp.exec_lines = [
-    ENABLE_ALTAIR,
-]
+c.InteractiveShellApp.exec_lines = []
 
 # Enable matplotlib renderings to show up inline in the notebook.
 c.InteractiveShellApp.matplotlib = 'inline'
