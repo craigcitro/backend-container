@@ -122,12 +122,12 @@ function handleRequest(request: http.ServerRequest,
  * @param response the out-going HTTP response.
  */
 function uncheckedRequestHandler(request: http.ServerRequest, response: http.ServerResponse) {
-  var parsed_url = url.parse(request.url, true);
-  var urlpath = parsed_url.pathname;
+  const parsedUrl = url.parse(request.url, true);
+  const urlpath = parsedUrl.pathname;
 
   logging.logRequest(request, response);
 
-  var reverseProxyPort: string = reverseProxy.getRequestPort(request, urlpath);
+  const reverseProxyPort: string = reverseProxy.getRequestPort(request, urlpath);
   if (sockets.isSocketIoPath(urlpath)) {
     // Will automatically be handled by socket.io.
   } else if (reverseProxyPort) {
@@ -144,8 +144,9 @@ const httpOverWebSocketPath: string = '/http_over_websocket';
 
 function socketHandler(request: http.ServerRequest, socket: net.Socket, head: Buffer) {
   request.url = trimBasePath(request.url);
+  const parsedUrl = url.parse(request.url, true);
   // Avoid proxying websocket requests on this path, as it's handled locally rather than by Jupyter.
-  if (request.url != httpOverWebSocketPath) {
+  if (parsedUrl.pathname !== httpOverWebSocketPath) {
     jupyter.handleSocket(request, socket, head);
   }
 }
