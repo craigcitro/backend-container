@@ -109,8 +109,17 @@ function createJupyterServerAtPort(port: number, userDir: string) {
   pipeOutput(server.childProcess.stderr, server.port, /* error */ true);
 
   // Create the proxy.
-  var proxyOptions: httpProxy.ProxyServerOptions = {
-    target: `http://${jupyterServerAddr}:${port}${appSettings.datalabBasePath}`
+  let proxyTargetHost = jupyterServerAddr;
+  let proxyTargetPort = server.port;
+  if (appSettings.kernelManagerProxyHost) {
+    proxyTargetHost = appSettings.kernelManagerProxyHost;
+  }
+  if (appSettings.kernelManagerProxyPort) {
+    proxyTargetPort = appSettings.kernelManagerProxyPort;
+  }
+
+  const proxyOptions: httpProxy.ProxyServerOptions = {
+    target: `http://${proxyTargetHost}:${proxyTargetPort}${appSettings.datalabBasePath}`
   };
 
   server.proxy = httpProxy.createProxyServer(proxyOptions);
