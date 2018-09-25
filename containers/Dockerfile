@@ -22,6 +22,9 @@ EXPOSE 8080
 ENV PATH $PATH:/tools/node/bin:/tools/google-cloud-sdk/bin:/opt/bin
 ENV PYTHONPATH /env/python
 
+# TODO(b/75335671): Set the TF_FORCE_GPU_ALLOW_GROWTH environment variable when
+# building the container.
+
 # We need to set the gcloud path before disabling the components check below.
 ENV CLOUDSDK_CONFIG /content/.config
 
