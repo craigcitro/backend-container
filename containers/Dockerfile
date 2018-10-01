@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM ubuntu:17.10
+FROM nvidia/cuda:9.2-cudnn7-runtime-ubuntu18.04
 MAINTAINER Google Colaboratory Team <colaboratory-team@google.com>
 
 # Container configuration
@@ -38,24 +38,31 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG en_US.UTF-8
 
 RUN apt-get update && \
+# We first set up an additional PPA to get up-to-date nvidia libraries.
+    apt-get install --no-install-recommends -y -q \
+        software-properties-common && \
+    add-apt-repository ppa:graphics-drivers/ppa && \
+    apt-get update && \
     apt-get install --no-install-recommends -y -q \
         apt-utils \
         build-essential \
         ca-certificates \
         curl \
+        fonts-liberation \
         gfortran \
         git \
         google-perftools \
         libatlas-base-dev \
-        libcublas8.0 \
-        libcudart8.0 \
-        libcufft8.0 \
-        libcufftw8.0 \
-        libcurand8.0 \
-        libcusolver8.0 \
+        libegl1 \
         libfreetype6-dev \
+        libgles2 \
+        libglvnd0 \
         libhdf5-dev \
         liblapack-dev \
+        libnvidia-cfg1-396 \
+        libnvidia-compute-396 \
+        libnvidia-gl-396 \
+        libopengl0 \
         libpng-dev \
         libsm6 \
         libxext6 \
@@ -73,7 +80,6 @@ RUN apt-get update && \
         python3-tk \
         rename \
         rsync \
-        ttf-liberation \
         unzip \
         wget \
         zip \
@@ -100,7 +106,7 @@ RUN apt-get update && \
 
 # Fetch tensorflow wheels.
     cp /backend-container/containers/install_tf.sh / && \
-    gsutil cp gs://colab-tensorflow/2018-09-26T12:47:16-07:00/*whl / && \
+    gsutil cp gs://colab-tensorflow/2018-09-28T11:34:42-07:00/*whl / && \
     for v in 2 3; do for f in /*tensorflow*-cp${v}*.whl; do pip${v} download -d /tf_deps $f; done; done && \
 
 # Install wheel for use below.
@@ -149,7 +155,7 @@ RUN apt-get update && \
 # Set our locale to en_US.UTF-8.
     apt-get install -y locales && \
     locale-gen en_US.UTF-8 && \
-    update-locale LANG=en_US.UTF-8 \
+    update-locale LANG=en_US.UTF-8 && \
 # Build a copy of the datalab node app.
     mkdir -p /datalab/web && \
     cd /backend-container/sources && \
@@ -193,6 +199,10 @@ RUN apt-get update && \
 # Stage the go/drive-fs binary for use by google.colab helpers.
     mkdir -p /opt/google/drive && \
     mv /backend-container/drive /backend-container/roots.pem /opt/google/drive/ && \
+# The locale data available at runtime for GRTE-built binaries must precisely
+# match the data in the version of glibc they were compiled against.
+    mkdir -p /usr/grte/v4/lib64/locale && \
+    cp /backend-container/locale-archive /usr/grte/v4/lib64/locale/ && \
 
 # We want to include a few small datasets, so that a new user has a few files
 # to explore.
@@ -202,9 +212,6 @@ RUN apt-get update && \
     curl -OL https://dl.google.com/mlcc/mledu-datasets/california_housing_test.csv && \
     curl -OL https://dl.google.com/mlcc/mledu-datasets/mnist_train_small.csv && \
     curl -OL https://dl.google.com/mlcc/mledu-datasets/mnist_test.csv && \
-
-# Let GRTE find locales that are installed in standard (non-GRTE) locations.
-    mkdir -p /usr/grte/v4/lib64/ && ln -s /usr/lib/locale /usr/grte/v4/lib64/ && \
 
 # Clean up
     apt-get autoremove -y && \
