@@ -22,8 +22,13 @@ EXPOSE 8080
 ENV PATH $PATH:/tools/node/bin:/tools/google-cloud-sdk/bin:/opt/bin
 ENV PYTHONPATH /env/python
 
-# TODO(b/75335671): Set the TF_FORCE_GPU_ALLOW_GROWTH environment variable when
-# building the container.
+# By default, the majority of GPU memory will be allocated by the first
+# execution of a TensorFlow graph. While this behavior can be desirable for
+# production pipelines, it is less desirable for interactive use. Set
+# TF_FORCE_GPU_ALLOW_GROWTH to change this default behavior as if the user had
+# specified allow_growth=true:
+#   https://www.tensorflow.org/guide/using_gpu#allowing_gpu_memory_growth
+ENV TF_FORCE_GPU_ALLOW_GROWTH true
 
 # We need to set the gcloud path before disabling the components check below.
 ENV CLOUDSDK_CONFIG /content/.config
