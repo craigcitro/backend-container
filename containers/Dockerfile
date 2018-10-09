@@ -111,7 +111,7 @@ RUN apt-get update && \
 
 # Fetch tensorflow wheels.
     cp /backend-container/containers/install_tf.sh / && \
-    gsutil cp gs://colab-tensorflow/2018-10-08T15:06:38-07:00/*whl / && \
+    gsutil cp gs://colab-tensorflow/2018-10-09T01:41:41-07:00/*whl / && \
     for v in 2 3; do for f in /*tensorflow*-cp${v}*.whl; do pip${v} download -d /tf_deps $f; done; done && \
 
 # Install wheel for use below.
