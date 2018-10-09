@@ -20,7 +20,6 @@ import {AppSettings} from './appSettings';
 import * as logging from './logging';
 
 const SETTINGS_FILE = 'settings.json';
-const BASE_PATH_FILE = 'basePath.json';
 
 /**
  * Loads the configuration settings for the application to use.
@@ -30,7 +29,6 @@ const BASE_PATH_FILE = 'basePath.json';
  */
 export function loadAppSettings(): AppSettings {
   var settingsPath = path.join(__dirname, 'config', SETTINGS_FILE);
-  var basePathFile = path.join(__dirname, 'config', BASE_PATH_FILE);
 
   if (!fs.existsSync(settingsPath)) {
     _logError('App settings file %s not found.', settingsPath);
@@ -41,12 +39,6 @@ export function loadAppSettings(): AppSettings {
     const settings =
         JSON.parse(fs.readFileSync(settingsPath, 'utf8') || '{}') as
         AppSettings;
-    if (!fs.existsSync(basePathFile)) {
-      _log('Base path setting file not found, falling back to empty path.');
-      settings.datalabBasePath = '';
-    } else {
-      settings.datalabBasePath = JSON.parse(fs.readFileSync(basePathFile, 'utf8'));
-    }
     const settingsOverrides = process.env['DATALAB_SETTINGS_OVERRIDES'];
     if (settingsOverrides) {
       // Allow overriding individual settings via JSON provided as an environment variable.
@@ -54,14 +46,6 @@ export function loadAppSettings(): AppSettings {
       for (const key of Object.keys(overrides)) {
         (<any>settings)[key] = overrides[key];
       }
-    }
-
-    // Normalize the base path to include "/" characters.
-    if (settings.datalabBasePath.indexOf("/") != 0) {
-      settings.datalabBasePath = "/" + settings.datalabBasePath;
-    }
-    if (settings.datalabBasePath.lastIndexOf("/") != settings.datalabBasePath.length - 1) {
-      settings.datalabBasePath = settings.datalabBasePath + "/";
     }
     return settings;
   } catch (e) {

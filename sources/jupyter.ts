@@ -78,7 +78,7 @@ function createJupyterServerAtPort(port: number, userDir: string) {
     '--port=' + server.port,
     '--port-retries=0',
     '--notebook-dir="' + server.notebooks + '"',
-    '--NotebookApp.base_url=' + appSettings.datalabBasePath,
+    '--NotebookApp.base_url="/"',
   ]);
 
   let jupyterServerAddr = 'localhost';
@@ -119,7 +119,7 @@ function createJupyterServerAtPort(port: number, userDir: string) {
   }
 
   const proxyOptions: httpProxy.ProxyServerOptions = {
-    target: `http://${proxyTargetHost}:${proxyTargetPort}${appSettings.datalabBasePath}`
+    target: `http://${proxyTargetHost}:${proxyTargetPort}`
   };
 
   server.proxy = httpProxy.createProxyServer(proxyOptions);

@@ -28,11 +28,6 @@ let server: http.Server;
 let staticHandler: Function;
 
 /**
- * The application settings instance.
- */
-let appSettings: AppSettings;
-
-/**
  * If it is the user's first request since the web server restarts,
  * need to start jupyter server for that user.
  * We don't track results here. Later requests will go through initialization
@@ -83,12 +78,6 @@ function handleRequest(request: http.ServerRequest,
 
   // If Jupyter is not initialized, do it as early as possible after authentication.
   startInitializationForUser(request);
-
-  if (requestPath.indexOf('/api/basepath') === 0) {
-    response.statusCode = 200;
-    response.end(appSettings.datalabBasePath);
-    return;
-  }
 
   // Requests proxied to Jupyter
   if ((requestPath == '/') ||
@@ -143,21 +132,10 @@ function uncheckedRequestHandler(request: http.ServerRequest, response: http.Ser
 const httpOverWebSocketPath: string = '/http_over_websocket';
 
 function socketHandler(request: http.ServerRequest, socket: net.Socket, head: Buffer) {
-  request.url = trimBasePath(request.url);
   const parsedUrl = url.parse(request.url, true);
   // Avoid proxying websocket requests on this path, as it's handled locally rather than by Jupyter.
   if (parsedUrl.pathname !== httpOverWebSocketPath) {
     jupyter.handleSocket(request, socket, head);
-  }
-}
-
-function trimBasePath(requestPath: string): string {
-  let pathPrefix = appSettings.datalabBasePath;
-  if (requestPath.indexOf(pathPrefix) == 0) {
-    let newPath = "/" + requestPath.substring(pathPrefix.length);
-    return newPath;
-  } else {
-    return requestPath;
   }
 }
 
@@ -168,7 +146,6 @@ function trimBasePath(requestPath: string): string {
  * @param response the out-going HTTP response.
  */
 function requestHandler(request: http.ServerRequest, response: http.ServerResponse) {
-  request.url = trimBasePath(request.url);
   try {
     uncheckedRequestHandler(request, response);
   } catch (e) {
@@ -181,7 +158,6 @@ function requestHandler(request: http.ServerRequest, response: http.ServerRespon
  * @param settings the configuration settings to use.
  */
 export function run(settings: AppSettings): void {
-  appSettings = settings;
   jupyter.init(settings);
   reverseProxy.init(settings);
 
@@ -199,9 +175,8 @@ export function run(settings: AppSettings): void {
     new wsHttpProxy.WsHttpProxy(server, httpOverWebSocketPath, settings.allowOriginOverrides);
   }
 
-  logging.getLogger().info('Starting DataLab server at http://localhost:%d%s',
-                           settings.serverPort,
-                           settings.datalabBasePath);
+  logging.getLogger().info('Starting server at http://localhost:%d',
+                           settings.serverPort);
   process.on('SIGINT', () => process.exit());
 
   server.listen(settings.serverPort);
