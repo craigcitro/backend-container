@@ -52,6 +52,7 @@ RUN apt-get update && \
         apt-utils \
         build-essential \
         ca-certificates \
+        cuda-command-line-tools-9-2 \
         curl \
         fonts-liberation \
         gfortran \
@@ -89,6 +90,7 @@ RUN apt-get update && \
         wget \
         zip \
         && \
+    ldconfig /usr/local/cuda-9.2/extras/CUPTI/lib64 && \
     mkdir -p /tools && \
 
 # Set up pip, as per: https://pip.pypa.io/en/stable/installing/
