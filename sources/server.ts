@@ -21,11 +21,9 @@ import * as jupyter from './jupyter';
 import * as logging from './logging';
 import * as reverseProxy from './reverseProxy';
 import * as sockets from './sockets';
-import * as static_ from './static';
 import * as wsHttpProxy from './wsHttpProxy';
 
 let server: http.Server;
-let staticHandler: Function;
 
 /**
  * If it is the user's first request since the web server restarts,
@@ -80,16 +78,18 @@ function handleRequest(request: http.ServerRequest,
   startInitializationForUser(request);
 
   // Requests proxied to Jupyter
-  if ((requestPath == '/') ||
-      (requestPath.indexOf('/api') == 0) ||
-      (requestPath.indexOf('/tree') == 0) ||
-      (requestPath.indexOf('/notebooks') == 0) ||
-      (requestPath.indexOf('/nbconvert') == 0) ||
-      (requestPath.indexOf('/nbextensions') == 0) ||
-      (requestPath.indexOf('/files') == 0) ||
-      (requestPath.indexOf('/edit') == 0) ||
-      (requestPath.indexOf('/terminals') == 0) ||
-      (requestPath.indexOf('/sessions') == 0)) {
+  // TODO(b/109975537): Remove unused paths.
+  if ((requestPath === '/') ||
+      (requestPath.indexOf('/api') === 0) ||
+      (requestPath.indexOf('/tree') === 0) ||
+      (requestPath.indexOf('/notebooks') === 0) ||
+      (requestPath.indexOf('/nbconvert') === 0) ||
+      (requestPath.indexOf('/nbextensions') === 0) ||
+      (requestPath.indexOf('/files') === 0) ||
+      (requestPath.indexOf('/edit') === 0) ||
+      (requestPath.indexOf('/terminals') === 0) ||
+      (requestPath.indexOf('/sessions') === 0) ||
+      (requestPath.indexOf('/static') === 0)) {
 
     handleJupyterRequest(request, response);
     return;
@@ -121,8 +121,6 @@ function uncheckedRequestHandler(request: http.ServerRequest, response: http.Ser
     // Will automatically be handled by socket.io.
   } else if (reverseProxyPort) {
     reverseProxy.handleRequest(request, response, reverseProxyPort);
-  } else if (urlpath.indexOf('/static') == 0) {
-    staticHandler(request, response);
   } else {
     handleRequest(request, response, urlpath);
   }
@@ -160,8 +158,6 @@ function requestHandler(request: http.ServerRequest, response: http.ServerRespon
 export function run(settings: AppSettings): void {
   jupyter.init(settings);
   reverseProxy.init(settings);
-
-  staticHandler = static_.createHandler(settings);
 
   server = http.createServer(requestHandler);
   // Disable HTTP keep-alive connection timeouts in order to avoid connection
