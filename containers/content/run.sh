@@ -31,8 +31,15 @@ if [ -d /usr/lib64-nvidia ]; then
   done
   cd "$T"
 fi
-pip3 install -U tensorflow-*36*whl
-pip2 install -U tensorflow-*cp27*whl
+# Cloud TPUs don't work with the current release of TF (1.4) so use the
+# "nightly" (1.5rc) on TPU-using VMs.
+if [ -n "$COLAB_TPU_ADDR" ]; then
+  pip3 install -U tensorflow-1.5*-*36*whl
+  pip2 install -U tensorflow-1.5*-*cp27*whl
+else
+  pip3 install -U tensorflow-1.4*-*36*whl
+  pip2 install -U tensorflow-1.4*-*cp27*whl
+fi
 if [ -n "$T" ]; then
   rm -rf "$T"
 fi
